@@ -1,0 +1,20 @@
+[0.025s] Invoking command in '/home/plsh/robotics_ws/build/week1_nodes': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/lyrical DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/plsh/robotics_ws/build/week1_nodes -- -j12 -l12
+[0.086s] -- Found ament_cmake: 2.8.7 (/opt/ros/lyrical/share/ament_cmake/cmake)
+[0.453s] -- Found rclcpp: 32.0.0 (/opt/ros/lyrical/share/rclcpp/cmake)
+[0.489s] -- Found rosidl_generator_c: 5.2.0 (/opt/ros/lyrical/share/rosidl_generator_c/cmake)
+[0.496s] -- Found rosidl_generator_cpp: 5.2.0 (/opt/ros/lyrical/share/rosidl_generator_cpp/cmake)
+[0.512s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.531s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.633s] -- Found rmw_implementation_cmake: 7.10.1 (/opt/ros/lyrical/share/rmw_implementation_cmake/cmake)
+[0.636s] -- Found rmw_fastrtps_cpp: 9.4.8 (/opt/ros/lyrical/share/rmw_fastrtps_cpp/cmake)
+[0.677s] -- Using RMW implementation 'rmw_fastrtps_cpp' as default
+[0.792s] -- Found std_msgs: 5.9.2 (/opt/ros/lyrical/share/std_msgs/cmake)
+[0.818s] -- Found geometry_msgs: 5.9.2 (/opt/ros/lyrical/share/geometry_msgs/cmake)
+[0.845s] -- Found ament_lint_auto: 0.20.6 (/opt/ros/lyrical/share/ament_lint_auto/cmake)
+[1.017s] [31mCMake Error at CMakeLists.txt:26 (ament_target_dependencies):
+[1.018s]   Unknown CMake command "ament_target_dependencies".
+[1.018s] 
+[1.018s] [0m
+[1.018s] -- Configuring incomplete, errors occurred!
+[1.028s] gmake: *** [Makefile:226: cmake_check_build_system] Error 1
+[1.033s] Invoked command in '/home/plsh/robotics_ws/build/week1_nodes' returned '2': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/lyrical DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/plsh/robotics_ws/build/week1_nodes -- -j12 -l12

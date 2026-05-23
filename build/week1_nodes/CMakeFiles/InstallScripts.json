@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/plsh/robotics_ws/build/week1_nodes/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

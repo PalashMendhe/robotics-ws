@@ -1,0 +1,52 @@
+[0.023s] Invoking command in '/home/plsh/robotics_ws/build/week1_nodes': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/lyrical DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/plsh/robotics_ws/src/week1_nodes -DCMAKE_INSTALL_PREFIX=/home/plsh/robotics_ws/install/week1_nodes
+[0.247s] -- The C compiler identification is GNU 15.2.0
+[0.450s] -- The CXX compiler identification is GNU 15.2.0
+[0.469s] -- Detecting C compiler ABI info
+[0.645s] -- Detecting C compiler ABI info - done
+[0.672s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.672s] -- Detecting C compile features
+[0.673s] -- Detecting C compile features - done
+[0.701s] -- Detecting CXX compiler ABI info
+[0.877s] -- Detecting CXX compiler ABI info - done
+[0.903s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.904s] -- Detecting CXX compile features
+[0.905s] -- Detecting CXX compile features - done
+[0.940s] -- Found ament_cmake: 2.8.7 (/opt/ros/lyrical/share/ament_cmake/cmake)
+[1.885s] -- Found rclcpp: 32.0.0 (/opt/ros/lyrical/share/rclcpp/cmake)
+[2.009s] -- Found rosidl_generator_c: 5.2.0 (/opt/ros/lyrical/share/rosidl_generator_c/cmake)
+[2.045s] -- Found rosidl_generator_cpp: 5.2.0 (/opt/ros/lyrical/share/rosidl_generator_cpp/cmake)
+[2.101s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[2.146s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[2.337s] -- Found rmw_implementation_cmake: 7.10.1 (/opt/ros/lyrical/share/rmw_implementation_cmake/cmake)
+[2.348s] -- Found rmw_fastrtps_cpp: 9.4.8 (/opt/ros/lyrical/share/rmw_fastrtps_cpp/cmake)
+[2.442s] -- Using RMW implementation 'rmw_fastrtps_cpp' as default
+[2.630s] -- Found std_msgs: 5.9.2 (/opt/ros/lyrical/share/std_msgs/cmake)
+[2.666s] -- Found geometry_msgs: 5.9.2 (/opt/ros/lyrical/share/geometry_msgs/cmake)
+[2.703s] -- Found ament_lint_auto: 0.20.6 (/opt/ros/lyrical/share/ament_lint_auto/cmake)
+[2.938s] -- Added test 'lint_cmake' to check CMake code style
+[2.941s] -- Added test 'xmllint' to check XML markup files
+[2.947s] -- Configuring done (2.9s)
+[2.958s] -- Generating done (0.0s)
+[3.003s] -- Build files have been written to: /home/plsh/robotics_ws/build/week1_nodes
+[3.014s] Invoked command in '/home/plsh/robotics_ws/build/week1_nodes' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/lyrical DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/plsh/robotics_ws/src/week1_nodes -DCMAKE_INSTALL_PREFIX=/home/plsh/robotics_ws/install/week1_nodes
+[3.016s] Invoking command in '/home/plsh/robotics_ws/build/week1_nodes': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/lyrical DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/plsh/robotics_ws/build/week1_nodes -- -j12 -l12
+[3.095s] Invoked command in '/home/plsh/robotics_ws/build/week1_nodes' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/lyrical DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/plsh/robotics_ws/build/week1_nodes -- -j12 -l12
+[3.115s] Invoking command in '/home/plsh/robotics_ws/build/week1_nodes': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/lyrical DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/plsh/robotics_ws/build/week1_nodes
+[3.131s] -- Install configuration: ""
+[3.131s] -- Installing: /home/plsh/robotics_ws/install/week1_nodes/share/ament_index/resource_index/package_run_dependencies/week1_nodes
+[3.132s] -- Installing: /home/plsh/robotics_ws/install/week1_nodes/share/ament_index/resource_index/parent_prefix_path/week1_nodes
+[3.132s] -- Installing: /home/plsh/robotics_ws/install/week1_nodes/share/week1_nodes/environment/ament_prefix_path.sh
+[3.133s] -- Installing: /home/plsh/robotics_ws/install/week1_nodes/share/week1_nodes/environment/ament_prefix_path.dsv
+[3.133s] -- Installing: /home/plsh/robotics_ws/install/week1_nodes/share/week1_nodes/environment/path.sh
+[3.133s] -- Installing: /home/plsh/robotics_ws/install/week1_nodes/share/week1_nodes/environment/path.dsv
+[3.134s] -- Installing: /home/plsh/robotics_ws/install/week1_nodes/share/week1_nodes/local_setup.bash
+[3.134s] -- Installing: /home/plsh/robotics_ws/install/week1_nodes/share/week1_nodes/local_setup.fish
+[3.134s] -- Installing: /home/plsh/robotics_ws/install/week1_nodes/share/week1_nodes/local_setup.sh
+[3.134s] -- Installing: /home/plsh/robotics_ws/install/week1_nodes/share/week1_nodes/local_setup.zsh
+[3.135s] -- Installing: /home/plsh/robotics_ws/install/week1_nodes/share/week1_nodes/local_setup.dsv
+[3.135s] -- Installing: /home/plsh/robotics_ws/install/week1_nodes/share/week1_nodes/package.dsv
+[3.135s] -- Installing: /home/plsh/robotics_ws/install/week1_nodes/share/ament_index/resource_index/packages/week1_nodes
+[3.135s] -- Installing: /home/plsh/robotics_ws/install/week1_nodes/share/week1_nodes/cmake/week1_nodesConfig.cmake
+[3.135s] -- Installing: /home/plsh/robotics_ws/install/week1_nodes/share/week1_nodes/cmake/week1_nodesConfig-version.cmake
+[3.135s] -- Installing: /home/plsh/robotics_ws/install/week1_nodes/share/week1_nodes/package.xml
+[3.139s] Invoked command in '/home/plsh/robotics_ws/build/week1_nodes' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/lyrical DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/plsh/robotics_ws/build/week1_nodes
