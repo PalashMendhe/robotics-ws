@@ -1,5 +1,0 @@
-source;share/week1_nodes/local_setup.bash
-source;share/week1_nodes/local_setup.dsv
-source;share/week1_nodes/local_setup.fish
-source;share/week1_nodes/local_setup.sh
-source;share/week1_nodes/local_setup.zsh
