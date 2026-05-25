@@ -1,0 +1,12 @@
+# Goal
+string sensor_name
+float64 target_value
+---
+# Result
+float64 calibrated_offset
+bool success
+string message
+---
+# Feedback
+float64 progress
+string current_step

@@ -1,0 +1,5 @@
+sensor_publisher:
+  ros__parameters:
+    publish_frequency: 1000
+    noise_amplitude: 0.2
+    warning_threshold: 3.8
