@@ -23,9 +23,9 @@ def generate_launch_description():
                     'launch', 'gz_sim.launch.py')
             ]),
 
-	    launch_arguments={'gz_args': '-r ' + os.path.join(
-   		 get_package_share_directory('robot_description'),
-    		 'worlds', 'warehouse.sdf')
+	    launch_arguments={'gz_args': '-r empty.sdf'
+#   		 get_package_share_directory('robot_description'),
+#    		 'worlds', 'warehouse.sdf')
 	    }.items()
         ),
 
@@ -37,10 +37,10 @@ def generate_launch_description():
         ),
 
         # Spawn robot in Gazebo
-        Node(
-    		package='ros_gz_sim',
-		executable='create',
-	        arguments=[
+                Node(
+                package='ros_gz_sim',
+                executable='create',
+                arguments=[
         '-name', 'my_robot',
         '-topic', '/robot_description',
         '-x', '0.0',
@@ -49,6 +49,8 @@ def generate_launch_description():
     ],
     output='screen'
 ),
+
+
 
         # ROS-Gazebo bridge for topics
         Node(
@@ -65,18 +67,4 @@ def generate_launch_description():
             output='screen'
         ),
     ])
-TimerAction(
-    period=3.0,
-    actions=[
-        Node(
-            package='ros_gz_sim',
-            executable='create',
-            arguments=[
-                '-name', 'my_robot',
-                '-topic', '/robot_description',
-                '-x', '0.0', '-y', '0.0', '-z', '0.03',
-            ],
-            output='screen'
-        )
-    ]
-),
+

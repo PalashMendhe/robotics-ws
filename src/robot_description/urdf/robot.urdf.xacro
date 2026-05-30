@@ -205,11 +205,11 @@
 	<plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
 		<left_joint>left_wheel_joint</left_joint>
 		<right_joint>right_wheel_joint</right_joint>
-		<wheel_seperation>0.24</wheel_seperation>
+		<wheel_separation>0.24</wheel_separation>
 		<wheel_radius>0.05</wheel_radius>
 		<odom_publish_frequency>10</odom_publish_frequency>
 		<topic>/model/my_robot/cmd_vel</topic>
-		<odom_topic>model/my_robot/odom</odom_topic>
+		<odom_topic>/model/my_robot/odometry</odom_topic>
 		<frame_id>odom</frame_id>
 		<child_frame_id>base_link</child_frame_id>
 	</plugin>
