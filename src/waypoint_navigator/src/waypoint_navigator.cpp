@@ -73,8 +73,12 @@ class WaypointNavigatorNode : public rclcpp::Node {
             if (distance < 0.1){
                 RCLCPP_INFO(this->get_logger(), "waypoint %zu reached", current_waypoint_index_);
                 current_waypoint_index_++;
+
+                geometry_msgs::msg::Twist stop;
+                waypoint_publisher_->publish(stop);
+                return;
             }
-            else if(fabs(heading_error) > 0.1){
+            else if(fabs(heading_error) > 0.15){
                 
                 geometry_msgs::msg::Twist cmd_vel;
                 cmd_vel.angular.z = std::clamp(Ka * heading_error, -max_angular_vel, max_angular_vel);
@@ -88,6 +92,7 @@ class WaypointNavigatorNode : public rclcpp::Node {
                 cmd_vel.linear.x = std::min(Kl * distance, max_linear_vel);
                 waypoint_publisher_->publish(cmd_vel);
             }
+            RCLCPP_INFO(this->get_logger(), "dist: %.2f heading_err: %.2f", distance, heading_error);
         }
 
 
@@ -101,8 +106,8 @@ class WaypointNavigatorNode : public rclcpp::Node {
         double current_pose_y_;
         double current_pose_yaw_;
         double Ka = 1.0; // angular gain
-        double Kl = 0.5; // linear gain
-        double max_angular_vel = 0.5; // max angular velocity
+        double Kl = 0.3; // linear gain
+        double max_angular_vel = 0.2; // max angular velocity
         double max_linear_vel = 0.3; // max linear velocity
         
         std::vector<Waypoint> waypoints_;
