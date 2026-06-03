@@ -1,13 +1,18 @@
+# About me 
+An upcoming pre-final year student in BIT Mesra, focusing on simulation-based autonomous navigation in ROS 2 and softwares related to it.
+
 # ROS2 Robotics Workspace
-Simulated a differential drive robot- full stack from urdf modelling to EKF fused localization and waypoint navigation with custom navigator.
+Simulated a differential drive robot- full stack from urdf modelling to EKF fused localization and waypoint navigation with custom navigator.  
+
 ## DEMO
-[![Waypoint Navigation Demo](https://img.youtube.com/vi/YOUR_VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=j7rMp31hbr0)
+[![Waypoint Navigation Demo](https://img.youtube.com/vi/j7rMp31hbr0/0.jpg)](https://www.youtube.com/watch?v=j7rMp31hbr0)
 ## System Overview
 Simulation - Gazebo Harmonic with differential drive, LiDAR, IMU, and camera plugins
 
 Localization - robot_localization EKF fusing wheel odometry and IMU
 
 Navigation - Custom proportional controller navigating waypoints using filtered odometry
+
 ## Packages
 | Package | Description |
 |---|---|
