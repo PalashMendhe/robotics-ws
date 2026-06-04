@@ -23,11 +23,10 @@ def generate_launch_description():
                     'launch', 'gz_sim.launch.py')
             ]),
 
-	    launch_arguments={'gz_args': '-r empty.sdf'
-#   		 get_package_share_directory('robot_description'),
-#    		 'worlds', 'warehouse.sdf')
-	    }.items()
-        ),
+            launch_arguments={'gz_args': '-r ' + os.path.join(
+                get_package_share_directory('robot_description'),
+                'worlds', 'warehouse.sdf')
+            }.items()),
 
         # Robot state publisher
         Node(
@@ -57,7 +56,7 @@ def generate_launch_description():
             package='ros_gz_bridge',
             executable='parameter_bridge',
             arguments=[
-    '/model/my_robot/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist',
+    '/model/my_robot/cmd_vel@geometry_msgs/msg/Twist[gz.msgs.Twist',
     '/model/my_robot/odometry@nav_msgs/msg/Odometry[gz.msgs.Odometry',
     '/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
     '/imu@sensor_msgs/msg/Imu[gz.msgs.IMU',
