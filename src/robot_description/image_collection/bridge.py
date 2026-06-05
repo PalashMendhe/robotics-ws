@@ -26,15 +26,13 @@ class DataCollectorNode(Node): #create data collector node to subscribe to camer
         key = cv2.waitKey(1) # wait for a key press to update the image display
 
         if key == ord('r'):
-            with open('red_boxes.txt', 'a') as f:
-                cv2.imwrite(f'data_collection/red_box/red_box_{self.red_count:03d}.jpg', cv_image) 
-                f.write('red_box_{}.jpg\n'.format(self.red_count)) 
-                self.red_count += 1 
+            cv2.imwrite(f'{self.red_dir}/red_box_{self.red_count:03d}.jpg', cv_image)
+            self.red_count += 1
+            self.get_logger().info(f'Saved red_box_{self.red_count:03d}.jpg')
         elif key == ord('b'):
-            with open('blue_cylinders.txt', 'a') as f:
-                cv2.imwrite(f'data_collection/blue_cylinders/blue_cylinder_{self.blue_count:03d}.jpg', cv_image) 
-                f.write('blue_cylinder_{}.jpg\n'.format(self.blue_count)) 
-                self.blue_count += 1 
+            cv2.imwrite(f'{self.blue_dir}/blue_cylinder_{self.blue_count:03d}.jpg', cv_image)
+            self.blue_count += 1
+            self.get_logger().info(f'Saved blue_cylinder_{self.blue_count:03d}.jpg')
         elif key == ord('q'):
             rclpy.shutdown()
 
