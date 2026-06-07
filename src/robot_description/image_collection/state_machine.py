@@ -27,6 +27,8 @@ class state_machine(Node):
         self.stop_cooldown = 4.0
         self.model = YOLO("best.pt")
         self.bridge = CvBridge()
+        self.locked_target_center = None
+        self.lock_threshold = 100
         self.subscription = self.create_subscription(
             Image,
             '/camera/image_raw',
@@ -45,8 +47,16 @@ class state_machine(Node):
             if int(box.cls[0]) == 1:
                 red_boxes.append(box)
         if len(red_boxes) > 0:
-            self.target_box = max(red_boxes, key=lambda b: (b.xyxy[0][2] - b.xyxy[0][0]) * (b.xyxy[0][3] - b.xyxy[0][1]))
-            self.last_seen_time = self.get_clock().now().nanoseconds/1e9
+            if self.state == State.APPROACHING and self.locked_target_center is not None:
+                
+                lx, ly = self.locked_target_center
+                self.target_box = min(red_boxes, key=lambda b: 
+                    abs(float((b.xyxy[0][0]+b.xyxy[0][2])/2) - lx) +
+                    abs(float((b.xyxy[0][1]+b.xyxy[0][3])/2) - ly))
+            else:
+                
+                self.target_box = max(red_boxes, key=lambda b: 
+                    float((b.xyxy[0][2]-b.xyxy[0][0]) * (b.xyxy[0][3]-b.xyxy[0][1])))
         if len(red_boxes) == 0:
             self.target_box = None
         cmd = Twist()
@@ -58,10 +68,13 @@ class state_machine(Node):
             self.stopped_state(cmd)
         self.publisher.publish(cmd)
         self.get_logger().info(f"Current State: {self.state.name}, Target Box: {self.target_box}")
-        red_boxes = [box for box in results[0].boxes 
-             if int(box.cls[0]) == 1]
+
     def searching_state(self, cmd):
         if self.target_box is not None:
+        
+            cx = float((self.target_box.xyxy[0][0]+self.target_box.xyxy[0][2])/2)
+            cy = float((self.target_box.xyxy[0][1]+self.target_box.xyxy[0][3])/2)
+            self.locked_target_center = (cx, cy)
             self.state = State.APPROACHING
         else:
             cmd.linear.x = 0.0
@@ -83,6 +96,7 @@ class state_machine(Node):
             self.state = State.STOPPED
         self.current_time = float(self.get_clock().now().nanoseconds/1e9)
         if self.current_time - self.last_seen_time > self.timeout_duration:
+            self.locked_target_center = None
             self.state = State.SEARCHING
         
         if abs(error_x) < 80:  # within 80 pixels of center
@@ -97,14 +111,13 @@ class state_machine(Node):
         if self.stop_time is None:
             self.stop_time = self.get_clock().now().nanoseconds / 1e9
             self.get_logger().info("Target reached, rotating away...")
+            
         
         current_time = self.get_clock().now().nanoseconds / 1e9
         if current_time - self.stop_time > self.stop_cooldown:
             self.stop_time = None
             self.state = State.SEARCHING
             self.get_logger().info("Searching for next target")
-        
-            self.state = State.SEARCHING
             
 
 def main(args=None):
