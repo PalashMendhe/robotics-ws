@@ -54,9 +54,12 @@ class state_machine(Node):
                     abs(float((b.xyxy[0][0]+b.xyxy[0][2])/2) - lx) +
                     abs(float((b.xyxy[0][1]+b.xyxy[0][3])/2) - ly))
             else:
-                
                 self.target_box = max(red_boxes, key=lambda b: 
                     float((b.xyxy[0][2]-b.xyxy[0][0]) * (b.xyxy[0][3]-b.xyxy[0][1])))
+                area = float((self.target_box.xyxy[0][2]-self.target_box.xyxy[0][0]) * 
+                            (self.target_box.xyxy[0][3]-self.target_box.xyxy[0][1]))
+                cx = float((self.target_box.xyxy[0][0]+self.target_box.xyxy[0][2])/2)
+                self.get_logger().info(f"SEARCHING selected: cx={cx:.0f} area={area:.0f}")
         if len(red_boxes) == 0:
             self.target_box = None
         cmd = Twist()
