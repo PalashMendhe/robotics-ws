@@ -12,7 +12,7 @@ class DetectionTestNode(Node):
         self.bridge = CvBridge()
         self.subscription = self.create_subscription(
             Image,
-            'camera/image_raw',
+            '/camera/image_raw',
             self.image_callback, 10
         )
     def image_callback(self, msg):
