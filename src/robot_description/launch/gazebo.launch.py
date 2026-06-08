@@ -43,7 +43,7 @@ def generate_launch_description():
         '-name', 'my_robot',
         '-topic', '/robot_description',
         '-x', '0.0',
-        '-y', '-3.0', 
+        '-y', '-2.0', 
         '-z', '0.1',
     ],
     output='screen'

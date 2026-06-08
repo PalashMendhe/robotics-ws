@@ -45,11 +45,11 @@ class state_machine(Node):
         cv2.waitKey(1)
         red_boxes = []
         for box in results[0].boxes:
-            if int(box.cls[0]) == 1:
+            cls = int(box.cls[0])
+            if cls == 1:  
                 red_boxes.append(box)
         if len(red_boxes) > 0:
             if self.state == State.APPROACHING and self.locked_target_center is not None:
-                
                 lx, ly = self.locked_target_center
                 self.target_box = min(red_boxes, key=lambda b: 
                     abs(float((b.xyxy[0][0]+b.xyxy[0][2])/2) - lx) +
@@ -57,10 +57,13 @@ class state_machine(Node):
             else:
                 self.target_box = max(red_boxes, key=lambda b: 
                     float((b.xyxy[0][2]-b.xyxy[0][0]) * (b.xyxy[0][3]-b.xyxy[0][1])))
+                cx = float((self.target_box.xyxy[0][0]+self.target_box.xyxy[0][2])/2)
                 area = float((self.target_box.xyxy[0][2]-self.target_box.xyxy[0][0]) * 
                             (self.target_box.xyxy[0][3]-self.target_box.xyxy[0][1]))
-                cx = float((self.target_box.xyxy[0][0]+self.target_box.xyxy[0][2])/2)
                 self.get_logger().info(f"SEARCHING selected: cx={cx:.0f} area={area:.0f}")
+            
+            
+            self.last_seen_time = self.get_clock().now().nanoseconds / 1e9
         if len(red_boxes) == 0:
             self.target_box = None
         cmd = Twist()
@@ -115,7 +118,7 @@ class state_machine(Node):
         if self.approach_start_time is None:
             self.approach_start_time = self.get_clock().now().nanoseconds / 1e9
         elapsed = current_time - self.approach_start_time
-        if box_area / image_area > 0.5 and elapsed > 2.0:
+        if box_area / image_area > 0.2 and elapsed > 2.0:
             self.state = State.STOPPED
             self.approach_start_time = None
         
