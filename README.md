@@ -13,6 +13,8 @@ Localization - robot_localization EKF fusing wheel odometry and IMU
 
 Navigation - Custom proportional controller navigating waypoints using filtered odometry
 
+Perception - YOLOv8 perception pipeline to find and/or navigate around target objects.
+
 ## Packages
 | Package | Description |
 |---|---|
