@@ -3,10 +3,10 @@
        xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <!-- ==================== PROPERTIES ==================== -->
-  <xacro:property name="base_length" value="0.25"/>
-  <xacro:property name="base_width"  value="0.2"/>
-  <xacro:property name="base_height" value="0.1"/>
-  <xacro:property name="base_mass"   value="2.0"/>
+  <xacro:property name="base_length" value="0.35"/>
+  <xacro:property name="base_width"  value="0.25"/>
+  <xacro:property name="base_height" value="0.07"/>
+  <xacro:property name="base_mass"   value="2.5"/>
 
   <xacro:property name="wheel_radius" value="0.05"/>
   <xacro:property name="wheel_width"  value="0.04"/>
@@ -60,7 +60,7 @@
   </xacro:macro>
 
   <!-- ==================== WHEEL MACRO ==================== -->
-  <xacro:macro name="wheel" params="name y_offset">
+  <xacro:macro name="wheel" params="name x_offset y_offset">
     <link name="${name}_wheel">
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -85,7 +85,7 @@
     <joint name="${name}_wheel_joint" type="revolute">
       <parent link="base_link"/>
       <child link="${name}_wheel"/>
-      <origin xyz="-0.05 ${y_offset} -0.05" rpy="-1.5707 0 0"/>
+      <origin xyz="${x_offset} ${y_offset} -0.035" rpy="-1.5707 0 0"/>
       <limit lower="-1e+16" upper="1e+16" effort="10" velocity="10"/>
       <axis xyz="0 0 1"/>
     </joint>
@@ -113,37 +113,53 @@
                        y="${base_width}"
                        z="${base_height}"/>
   </link>
+  <!-- ==================== Cover_plate ==================== -->
+  <link name="cover_plate">
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <box size="0.35 0.30 0.01"/>
+    </geometry>
+    <material name="dark_grey">
+      <color rgba="0.2 0.2 0.2 1"/>
+    </material>
+  </visual>
+  <xacro:box_inertia m="0.3" x="0.35" y="0.30" z="0.01"/>
+</link>
+
+<joint name="cover_plate_joint" type="fixed">
+  <parent link="base_link"/>
+  <child link="cover_plate"/>
+  <origin xyz="0 0 0.040" rpy="0 0 0"/>
+</joint>
+
+<!-- ==================== Arm_Mount ==================== -->
+
+<link name="arm_mount">
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <cylinder radius="0.04" length="0.045"/>
+    </geometry>
+    <material name="dark_grey">
+      <color rgba="0.2 0.2 0.2 1"/>
+    </material>
+  </visual>
+  <xacro:cylinder_inertia m="0.3" r="0.04" h="0.045"/>
+</link>
+
+<joint name="arm_mount_joint" type="fixed">
+  <parent link="base_link"/>
+  <child link="arm_mount"/>
+  <origin xyz="0.0 0 0.07" rpy="0 0 0"/>
+</joint>
+
 
   <!-- ==================== WHEELS ==================== -->
-  <xacro:wheel name="left"  y_offset="0.12"/>
-  <xacro:wheel name="right" y_offset="-0.12"/>
-
-  <!-- ==================== CASTER WHEEL ==================== -->
-  <link name="caster_link">
-    <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <sphere radius="${caster_radius}"/>
-      </geometry>
-      <material name="red">
-        <color rgba="0.8 0 0 1"/>
-      </material>
-    </visual>
-    <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <sphere radius="${caster_radius}"/>
-      </geometry>
-    </collision>
-    <xacro:sphere_inertia m="${caster_mass}" r="${caster_radius}"/>
-  </link>
-
-  <joint name="caster_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="caster_link"/>
-    <!-- Front of robot, below base center -->
-    <origin xyz="0.1 0 -0.05" rpy="0 0 0"/>
-  </joint>
+  <xacro:wheel name="front_left" x_offset="0.12" y_offset="0.14"/>
+  <xacro:wheel name="front_right" x_offset="0.12" y_offset="-0.14"/>
+  <xacro:wheel name="rear_left"   x_offset="-0.12" y_offset="0.14"/>
+  <xacro:wheel name="rear_right"  x_offset="-0.12" y_offset="-0.14"/>
 
   <!-- ==================== LIDAR ==================== -->
   <link name="lidar_link">
@@ -171,7 +187,7 @@
     <parent link="base_link"/>
     <child link="lidar_link"/>
     <!-- On top of base, centered -->
-    <origin xyz="0 0 0.075" rpy="0 0 0"/>
+    <origin xyz="-0.12 0 0.075" rpy="0 0 0"/>
   </joint>
 
   <!-- ==================== CAMERA ==================== -->
@@ -198,14 +214,14 @@
     <parent link="base_link"/>
     <child link="camera_link"/>
     <!-- Front of robot, tilted down 30 degrees -->
-    <origin xyz="0.15 0 0.05" rpy="0 -0.523 0"/>
+    <origin xyz="0.175 0 0.04" rpy="0 -0.523 0"/>
   </joint>
 
 <gazebo>
 	<plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
-		<left_joint>left_wheel_joint</left_joint>
-		<right_joint>right_wheel_joint</right_joint>
-		<wheel_separation>0.24</wheel_separation>
+		<left_joint>front_left_wheel_joint</left_joint>
+		<right_joint>front_right_wheel_joint</right_joint>
+		<wheel_separation>0.28</wheel_separation>
 		<wheel_radius>0.05</wheel_radius>
 		<odom_publish_frequency>10</odom_publish_frequency>
 		<topic>/model/my_robot/cmd_vel</topic>
