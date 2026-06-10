@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<robot name="arm" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ==================== PROPERTIES ==================== -->
+  <xacro:property name="arm_base_link_height" value="0.01"/>
+  <xacro:property name="arm_base_link_radius" value="0.05"/>
+  <xacro:property name="arm_base_link_weight" value="0.3"/>
+
+  <!-- ==================== Inertia Macros ================ -->
+  <xacro:macro name="cylinder_inertia" params="m r h">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="${m}"/>
+      <inertia
+        ixx="${(1/12)*m*(3*r*r+h*h)}"
+        ixy="0" ixz="0"
+        iyy="${(1/12)*m*(3*r*r+h*h)}"
+        iyz="0"
+        izz="${(1/2)*m*r*r}"/>
+    </inertial>
+  </xacro:macro>
+
+  <!-- ==================== ARM BASE LINK ==================== -->
+  <link name="arm_base_link">
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <cylinder radius="${arm_base_link_radius}" length="${arm_base_link_height}"/>
+    </geometry>
+    <material name="orange">
+      <color rgba="0.85 0.035 0 1"/>
+    </material>
+  </visual>
+  <xacro:cylinder_inertia m="${arm_base_link_weight}" r="${arm_base_link_radius}" h="${arm_base_link_height}"/>
+  </link>
+
+  <joint name="arm_base_joint" type="revolute">
+    <parent link="arm_mount"/>
+    <child link="arm_base_link"/>
+    <origin xyz="0.0 0 0.0275" rpy="0 0 0"/>
+    <limit lower="-3.14" upper="3.14" effort="10" velocity="1.0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+</robot>

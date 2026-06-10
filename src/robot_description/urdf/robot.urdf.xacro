@@ -284,5 +284,6 @@
     <visualize>true</visualize>
   </sensor>
 </gazebo>
+<xacro:include filename="$(find arm_description)/urdf/arm.urdf.xacro"/>
 
 </robot>
