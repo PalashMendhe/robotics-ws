@@ -48,38 +48,10 @@
     <axis xyz="0 0 1"/>
   </joint>
 
-  <!-- ==================== FOREARM LINK ==================== -->
-  <link name="forearm_link">
-    <visual>
-      <origin xyz="0 0 0.065" rpy="0 1.5707 0"/>
-      <geometry>
-        <cylinder radius="0.022" length="0.13"/>
-      </geometry>
-      <material name="green">
-        <color rgba="0.035 0.85 0.035 1"/>
-      </material>
-    </visual>
-    <collision>
-      <origin xyz="0 0 0.065" rpy="0 1.5707 0"/>
-      <geometry>
-        <cylinder radius="0.022" length="0.13"/>
-      </geometry>
-    </collision>
-    <xacro:cylinder_inertia m="0.3" r="0.022" h="0.13"/>
-  </link>
-
-  <joint name="forearm_joint" type="revolute">
-    <parent link="upper_arm_link"/>
-    <child link="forearm_link"/>
-    <origin xyz="0 0 0.17" rpy="0 0 0"/>
-    <limit lower="-3.14" upper="3.14" effort="10" velocity="1.0"/>
-    <axis xyz="0 1 0"/>
-  </joint>
-
   <!-- ==================== UPPER ARM LINK ==================== -->
   <link name="upper_arm_link">
     <visual>
-      <origin xyz="0 0 0.085" rpy="0 1.5707 0"/>
+      <origin xyz="0 0 0.085" rpy="0 0 0"/>
       <geometry>
         <cylinder radius="0.025" length="0.17"/>
       </geometry>
@@ -88,7 +60,7 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0.085" rpy="0 1.5707 0"/>
+      <origin xyz="0 0 0.085" rpy="0 0 0"/>
       <geometry>
       <cylinder radius="0.025" length="0.17"/>
       </geometry>
@@ -105,6 +77,102 @@
     <axis xyz="0 1 0"/>
   </joint>
 
+  <!-- ==================== FOREARM LINK ==================== -->
+  <link name="forearm_link">
+    <visual>
+      <origin xyz="0 0 0.065" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.022" length="0.13"/>
+      </geometry>
+      <material name="green">
+        <color rgba="0.035 0.85 0.035 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.065" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.022" length="0.13"/>
+      </geometry>
+    </collision>
+    <xacro:cylinder_inertia m="0.3" r="0.022" h="0.13"/>
+  </link>
+
+  <joint name="forearm_joint" type="revolute">
+    <parent link="upper_arm_link"/>
+    <child link="forearm_link"/>
+    <origin xyz="0 0 0.17" rpy="0 1.5707 0"/>
+    <limit lower="-3.14" upper="3.14" effort="10" velocity="1.0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+<!-- ==================== WRIST LINK ==================== -->
+
+  <link name = "wrist_link">
+    <visual>
+      <origin xyz="0.05 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.02" length="0.1"/>
+      </geometry>
+      <material name="red">
+        <color rgba="0.85 0.035 0.035 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0.05 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.02" length="0.1"/>
+      </geometry>
+    </collision>
+    <xacro:cylinder_inertia m="0.2" r="0.02" h="0.1"/>
+  </link>
+
+  <joint name="wrist_joint" type="revolute">
+    <parent link="forearm_link"/>
+    <child link="wrist_link"/>
+    <origin xyz="0.13 0 0" rpy="0 0 0"/>
+    <limit lower="-3.14" upper="3.14" effort="10" velocity="1.0"/>
+    <axis xyz="1 0 0"/>
+  </joint>
+
+<!-- =================================================== -->
+
+<gazebo>
+  <plugin filename="gz-sim-joint-state-publisher-system"
+          name="gz::sim::systems::JointStatePublisher">
+  </plugin>
+  <plugin filename="gz-sim-joint-position-controller-system"
+          name="gz::sim::systems::JointPositionController">
+    <joint_name>upper_arm_joint</joint_name>
+    <p_gain>10</p_gain>
+    <i_gain>0.1</i_gain>
+    <d_gain>0.01</d_gain>
+    <initial_position>0.0</initial_position>
+  </plugin>
+  <plugin filename="gz-sim-joint-position-controller-system"
+          name="gz::sim::systems::JointPositionController">
+    <joint_name>forearm_joint</joint_name>
+    <p_gain>10</p_gain>
+    <i_gain>0.1</i_gain>
+    <d_gain>0.01</d_gain>
+    <initial_position>0.0</initial_position>
+  </plugin>
+  <plugin filename="gz-sim-joint-position-controller-system"
+          name="gz::sim::systems::JointPositionController">
+    <joint_name>arm_base_joint</joint_name>
+    <p_gain>10</p_gain>
+    <i_gain>0.1</i_gain>
+    <d_gain>0.01</d_gain>
+    <initial_position>0.0</initial_position>
+  </plugin>
+  <plugin filename="gz-sim-joint-position-controller-system"
+          name="gz::sim::systems::JointPositionController">
+    <joint_name>wrist_joint</joint_name>
+    <p_gain>10</p_gain>
+    <i_gain>0.1</i_gain>
+    <d_gain>0.01</d_gain>
+    <initial_position>0.0</initial_position>
+  </plugin>
+</gazebo>
   
 
 </robot>
