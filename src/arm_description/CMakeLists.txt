@@ -8,7 +8,7 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(xacro REQUIRED)
-install(DIRECTORY urdf launch
+install(DIRECTORY urdf launch 
   DESTINATION share/${PROJECT_NAME}
 )
 # uncomment the following section in order to fill in

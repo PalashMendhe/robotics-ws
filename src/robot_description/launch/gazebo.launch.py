@@ -7,6 +7,10 @@ from launch.substitutions import Command
 from ament_index_python.packages import get_package_share_directory
 from launch.actions import TimerAction
 
+
+arm_pkg = get_package_share_directory('arm_description')
+jsp_config = os.path.join(arm_pkg, 'config', 'initial_positions.yaml')
+
 def generate_launch_description():
     pkg_path = get_package_share_directory('robot_description')
     urdf_file = os.path.join(pkg_path, 'urdf', 'robot.urdf.xacro')
@@ -23,16 +27,24 @@ def generate_launch_description():
                     'launch', 'gz_sim.launch.py')
             ]),
 
-            launch_arguments={'gz_args': '-r ' + os.path.join(
-                get_package_share_directory('robot_description'),
-                'worlds', 'warehouse.sdf')
-            }.items()),
+            launch_arguments={'gz_args': '-r empty.sdf'}.items()), 
+                              #+ os.path.join(
+                #get_package_share_directory('robot_description'),
+                #'worlds', 'warehouse.sdf')
+            #}.items()),
 
         # Robot state publisher
         Node(
             package='robot_state_publisher',
             executable='robot_state_publisher',
             parameters=[{'robot_description': robot_description}]
+        ),
+
+        # Joint state publisher
+        Node(
+            package='joint_state_publisher',
+            executable='joint_state_publisher',
+            name='joint_state_publisher',
         ),
 
         # Spawn robot in Gazebo
@@ -43,7 +55,7 @@ def generate_launch_description():
         '-name', 'my_robot',
         '-topic', '/robot_description',
         '-x', '0.0',
-        '-y', '-2.0', 
+        '-y', '0.0', 
         '-z', '0.1',
     ],
     output='screen'
