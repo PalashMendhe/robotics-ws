@@ -27,11 +27,11 @@ def generate_launch_description():
                     'launch', 'gz_sim.launch.py')
             ]),
 
-            launch_arguments={'gz_args': '-r empty.sdf'}.items()), 
-                              #+ os.path.join(
-                #get_package_share_directory('robot_description'),
-                #'worlds', 'warehouse.sdf')
-            #}.items()),
+            launch_arguments={'gz_args': '-r ' 
+                              + os.path.join(
+                get_package_share_directory('robot_description'),
+                'worlds', 'warehouse_with_shelves.sdf')
+            }.items()),
 
         # Robot state publisher
         Node(
