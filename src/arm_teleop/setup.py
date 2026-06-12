@@ -26,6 +26,7 @@ setup(
     entry_points={
     'console_scripts': [
         'arm_keyboard = arm_teleop.arm_keyboard:main',
+        'arm_ik = arm_teleop.arm_ik:main',
         ],
     },
 )
