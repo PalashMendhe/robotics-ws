@@ -5,6 +5,8 @@ from std_msgs.msg import Float64
 import sys
 import tty
 import termios
+import time
+from geometry_msgs.msg import Twist
 
 STEP = 0.05  # radians per keypress
 GRIPPER_STEP = 0.005  # meters per keypress
@@ -21,7 +23,12 @@ KEYS = {
     'o': ('gripper', +1),   # open
     'c': ('gripper', -1),   # close
 }
-
+DRIVE_KEYS = {
+    '\x1b[A': (0.3, 0.0),   # up arrow: forward
+    '\x1b[B': (-0.3, 0.0),  # down arrow: backward
+    '\x1b[C': (0.0, -0.5),  # right arrow: turn right
+    '\x1b[D': (0.0, 0.5),   # left arrow: turn left
+}
 LIMITS = {
     'arm_base_joint':  (-3.14, 3.14),
     'upper_arm_joint': (-1.5707, 1.5707),
@@ -32,6 +39,7 @@ LIMITS = {
 class ArmKeyboard(Node):
     def __init__(self):
         super().__init__('arm_keyboard')
+        self.cmd_vel_pub = self.create_publisher(Twist, '/model/my_robot/cmd_vel', 10)
         self.pubs = {
             'arm_base_joint':  self.create_publisher(Float64, '/arm_base_joint/cmd_pos', 10),
             'upper_arm_joint': self.create_publisher(Float64, '/upper_arm_joint/cmd_pos', 10),
@@ -59,6 +67,7 @@ r/f : forearm up/down
 t/g : wrist roll
 o/c : gripper open/close
 q   : quit
+↑/↓/←/→ : drive forward/backward/turn
 """)
 
     def get_key(self):
@@ -66,7 +75,10 @@ q   : quit
         old = termios.tcgetattr(fd)
         try:
             tty.setraw(fd)
-            return sys.stdin.read(1)
+            key = sys.stdin.read(1)
+            if key == '\x1b':
+                key += sys.stdin.read(2)
+            return key
         finally:
             termios.tcsetattr(fd, termios.TCSADRAIN, old)
 
@@ -79,26 +91,39 @@ q   : quit
             key = self.get_key()
             if key == 'q':
                 break
-            if key not in KEYS:
-                continue
-            joint, direction = KEYS[key]
-            if joint == 'gripper':
-                self.positions['gripper'] += direction * GRIPPER_STEP
-                self.positions['gripper'] = max(0.0, min(0.08, self.positions['gripper']))
-                msg = Float64()
-                msg.data = self.positions['gripper']
-                self.pubs['right_prong'].publish(msg)
-                msg2 = Float64()
-                msg2.data = -self.positions['gripper']
-                self.pubs['left_prong'].publish(msg2)
-                print(f"gripper: {self.positions['gripper']:.3f}")
-            else:
-                self.positions[joint] += direction * STEP
-                self.positions[joint] = self.clamp(joint, self.positions[joint])
-                msg = Float64()
-                msg.data = self.positions[joint]
-                self.pubs[joint].publish(msg)
-                print(f"{joint}: {self.positions[joint]:.3f}")
+            
+            
+            if key in DRIVE_KEYS:
+                linear, angular = DRIVE_KEYS[key]
+                msg = Twist()
+                msg.linear.x = linear
+                msg.angular.z = angular
+                self.cmd_vel_pub.publish(msg)
+                print(f"driving: linear={linear}, angular={angular}")
+                time.sleep(0.1)  # drive for 100ms
+                # then stop
+                stop = Twist()
+                self.cmd_vel_pub.publish(stop)
+            
+            elif key in KEYS:
+                joint, direction = KEYS[key]
+                if joint == 'gripper':
+                    self.positions['gripper'] += direction * GRIPPER_STEP
+                    self.positions['gripper'] = max(0.0, min(0.08, self.positions['gripper']))
+                    msg = Float64()
+                    msg.data = self.positions['gripper']
+                    self.pubs['right_prong'].publish(msg)
+                    msg2 = Float64()
+                    msg2.data = -self.positions['gripper']
+                    self.pubs['left_prong'].publish(msg2)
+                    print(f"gripper: {self.positions['gripper']:.3f}")
+                else:
+                    self.positions[joint] += direction * STEP
+                    self.positions[joint] = self.clamp(joint, self.positions[joint])
+                    msg = Float64()
+                    msg.data = self.positions[joint]
+                    self.pubs[joint].publish(msg)
+                    print(f"{joint}: {self.positions[joint]:.3f}")
 
 def main():
     rclpy.init()
