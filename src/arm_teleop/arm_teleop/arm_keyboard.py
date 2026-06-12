@@ -43,7 +43,7 @@ class ArmKeyboard(Node):
         self.positions = {
             'arm_base_joint':  0.0,
             'upper_arm_joint': 0.0,
-            'forearm_joint':   0.0,
+            'forearm_joint':   1.5707,
             'wrist_joint':     0.0,
             'gripper':         0.0,
         }

@@ -157,7 +157,7 @@
   <joint name="forearm_joint" type="revolute">
     <parent link="upper_arm_link"/>
     <child link="forearm_link"/>
-    <origin xyz="0 0 0.17" rpy="0 1.5707 0"/>
+    <origin xyz="0 0 0.17" rpy="0 0 0"/>
     <limit lower="-3.14" upper="3.14" effort="10" velocity="1.0"/>
     <axis xyz="0 1 0"/>
   </joint>
@@ -281,7 +281,7 @@
   <visual>
     <origin xyz="0 0 0.018" rpy="0 0 0"/>
     <geometry>
-      <box size="0.02 0.005 0.06"/>
+      <box size="0.02 0.005 0.1"/>
     </geometry>
     <material name="cyan">
       <color rgba="0.035 0.85 0.85 1"/>
@@ -290,10 +290,10 @@
   <collision>
     <origin xyz="0 0 0.018" rpy="0 0 0"/>
     <geometry>
-      <box size="0.02 0.005 0.06"/>
+      <box size="0.02 0.005 0.1"/>
     </geometry>
   </collision>
-  <xacro:box_inertia m="0.05" x="0.02" y="0.005" z="0.06"/>
+  <xacro:box_inertia m="0.05" x="0.02" y="0.015" z="0.1"/>
 </link>
 
 <joint name="right_prong_joint" type="prismatic">
@@ -309,7 +309,7 @@
   <visual>
     <origin xyz="0 0 0.018" rpy="0 0 0"/>
     <geometry>
-      <box size="0.02 0.005 0.06"/>
+      <box size="0.02 0.005 0.1"/>
     </geometry>
     <material name="cyan">
       <color rgba="0.035 0.85 0.85 1"/>
@@ -318,10 +318,10 @@
   <collision>
     <origin xyz="0 0 0.018" rpy="0 0 0"/>
     <geometry>
-      <box size="0.02 0.005 0.06"/>
+      <box size="0.02 0.005 0.1"/>
     </geometry>
   </collision>
-  <xacro:box_inertia m="0.05" x="0.02" y="0.005" z="0.06"/>
+  <xacro:box_inertia m="0.05" x="0.02" y="0.015" z="0.1"/>
 </link>
 <joint name="left_prong_joint" type="prismatic">
   <parent link="gripper_base_link"/>
@@ -351,7 +351,7 @@
     <p_gain>10</p_gain>
     <i_gain>1.0</i_gain>
     <d_gain>5.0</d_gain>
-    <initial_position>0.0</initial_position>
+    <initial_position>1.5707</initial_position>
   </plugin>
   <plugin filename="gz-sim-joint-position-controller-system"
           name="gz::sim::systems::JointPositionController">
@@ -395,6 +395,19 @@
     <d_gain>5.0</d_gain>
     <initial_position>0.0</initial_position>
   </plugin>
+</gazebo>
+
+<gazebo reference="right_prong_link">
+  <mu1>10.0</mu1>
+  <mu2>10.0</mu2>
+  <kp>1000000.0</kp>
+  <kd>1.0</kd>
+</gazebo>
+<gazebo reference="left_prong_link">
+  <mu1>10.0</mu1>
+  <mu2>10.0</mu2>
+  <kp>1000000.0</kp>
+  <kd>1.0</kd>
 </gazebo>
 
 </robot>
