@@ -1,5 +1,0 @@
-joint_state_publisher:
-  ros__parameters:
-    zeros:
-      upper_arm_joint: 1.5707
-      forearm_joint: -0.8

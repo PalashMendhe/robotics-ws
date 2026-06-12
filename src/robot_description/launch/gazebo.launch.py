@@ -75,6 +75,20 @@ def generate_launch_description():
     '/camera/image_raw@sensor_msgs/msg/Image[gz.msgs.Image',
     '/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V',
 ],
+
+        
+            output='screen'
+        ),
+        Node(
+            package='ros_gz_bridge',
+            executable='parameter_bridge',
+            name='joint_bridge',
+            parameters=[{
+                'config_file': os.path.join(
+                    get_package_share_directory('robot_description'),
+                    'config', 'joint_bridge.yaml'
+                )
+            }],
             output='screen'
         ),
     ])

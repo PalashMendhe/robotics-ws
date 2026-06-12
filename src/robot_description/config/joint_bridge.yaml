@@ -1,0 +1,35 @@
+- ros_topic_name: "/arm_base_joint/cmd_pos"
+  gz_topic_name: "/model/my_robot/joint/arm_base_joint/0/cmd_pos"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/upper_arm_joint/cmd_pos"
+  gz_topic_name: "/model/my_robot/joint/upper_arm_joint/0/cmd_pos"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/forearm_joint/cmd_pos"
+  gz_topic_name: "/model/my_robot/joint/forearm_joint/0/cmd_pos"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/wrist_joint/cmd_pos"
+  gz_topic_name: "/model/my_robot/joint/wrist_joint/0/cmd_pos"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/left_prong_joint/cmd_pos"
+  gz_topic_name: "/model/my_robot/joint/left_prong_joint/0/cmd_pos"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/right_prong_joint/cmd_pos"
+  gz_topic_name: "/model/my_robot/joint/right_prong_joint/0/cmd_pos"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
