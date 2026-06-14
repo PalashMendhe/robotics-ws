@@ -75,7 +75,7 @@ ros2 service call /get_arm_ik arm_description/srv/GetArmIK "{x: 0.2, y: 0.0, z: 
 7. Different worlds for waypoint navigation and, arm control and differential drive.
 8. Added PID to robotic arm to stabalize it on robot.
 9. A custom arm keyboard to control the whole bot
-10. Used inverse kinematics to reach a specific coordinate.
+10. Used inverse kinematics to reach a specific coordinate..
 
 
 
