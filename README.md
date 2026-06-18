@@ -14,19 +14,13 @@ Simulated a differential drive robot having a 4+1 dof robotic arm attached on to
 
 [![Differential drive and arm control Demo](https://img.youtube.com/vi/XCMsv4JSbp4/0.jpg)](https://www.youtube.com/watch?v=XCMsv4JSbp4) 
 ## System Overview
-Simulation - Gazebo Harmonic with differential drive, LiDAR, IMU, and camera plugins.
-
-Localization - robot_localization EKF fusing wheel odometry and IMU.
-
-Navigation - Custom proportional controller navigating waypoints using filtered odometry.
-
-Perception - YOLOv8 perception pipeline to find and/or navigate around target objects.
-
-Unified Controller - Keyboard controlled arm and differential drive.
-
-Inversed Kinematics solver - To navigate the arm to specified coordinates with a single line command.
-
-PID integration - To negate the effect of gravity.
+1) Differential drive AMR with 4-wheel configuration, EKF sensor fusion
+2) 4+1 DOF robotic arm with parallel jaw gripper
+3) Joint position controllers with PID gravity compensation
+4) Closed-form geometric IK solver (law of cosines)
+5) YOLOv8 perception pipeline trained on synthetic Gazebo data (~99.5% mAP)
+6) Unified keyboard teleop — arm control + driving
+7) Custom waypoint navigator (C++ proportional controller)
 
 
 ## Packages
