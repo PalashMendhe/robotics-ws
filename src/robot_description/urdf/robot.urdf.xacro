@@ -133,26 +133,7 @@
   <origin xyz="0 0 0.040" rpy="0 0 0"/>
 </joint>
 
-<!-- ==================== Arm_Mount ==================== -->
 
-<link name="arm_mount">
-  <visual>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <geometry>
-      <cylinder radius="0.04" length="0.045"/>
-    </geometry>
-    <material name="dark_grey">
-      <color rgba="0.2 0.2 0.2 1"/>
-    </material>
-  </visual>
-  <xacro:cylinder_inertia m="0.3" r="0.04" h="0.045"/>
-</link>
-
-<joint name="arm_mount_joint" type="fixed">
-  <parent link="base_link"/>
-  <child link="arm_mount"/>
-  <origin xyz="0.0 0 0.07" rpy="0 0 0"/>
-</joint>
 
 
   <!-- ==================== WHEELS ==================== -->
@@ -187,7 +168,7 @@
     <parent link="base_link"/>
     <child link="lidar_link"/>
     <!-- On top of base, centered -->
-    <origin xyz="-0.12 0 0.075" rpy="0 0 0"/>
+    <origin xyz="0.0 0 0.07" rpy="0 0 0"/>
   </joint>
 
   <!-- ==================== CAMERA ==================== -->
@@ -232,7 +213,7 @@
 </gazebo>
 
 <gazebo reference="lidar_link">
-  <sensor name="lidar" type="gpu_lidar">
+  <sensor name="lidar" type="lidar">
     <topic>/scan</topic>
     <update_rate>10</update_rate>
     <lidar>
@@ -284,6 +265,6 @@
     <visualize>true</visualize>
   </sensor>
 </gazebo>
-<xacro:include filename="$(find arm_description)/urdf/arm.urdf.xacro"/>
+<!-- <xacro:include filename="$(find arm_description)/urdf/arm.urdf.xacro"/> -->
 
 </robot>
