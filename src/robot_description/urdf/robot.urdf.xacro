@@ -82,14 +82,29 @@
                               h="${wheel_width}"/>
     </link>
 
-    <joint name="${name}_wheel_joint" type="revolute">
+    <joint name="${name}_wheel_joint" type="continuous">
       <parent link="base_link"/>
       <child link="${name}_wheel"/>
       <origin xyz="${x_offset} ${y_offset} -0.035" rpy="-1.5707 0 0"/>
-      <limit lower="-1e+16" upper="1e+16" effort="10" velocity="10"/>
       <axis xyz="0 0 1"/>
     </joint>
+
+    <gazebo reference="${name}_wheel">
+      <mu1>1.0</mu1>
+      <mu2>1.0</mu2>
+      <kp>1000000.0</kp>
+      <kd>1.0</kd>
+    </gazebo>
   </xacro:macro>
+
+  <!-- ==================== BASE FOOTPRINT ==================== -->
+  <link name="base_footprint"/>
+
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0.085" rpy="0 0 0"/>
+  </joint>
 
   <!-- ==================== BASE LINK ==================== -->
   <link name="base_link">
@@ -113,6 +128,7 @@
                        y="${base_width}"
                        z="${base_height}"/>
   </link>
+
   <!-- ==================== Cover_plate ==================== -->
   <link name="cover_plate">
   <visual>
@@ -197,25 +213,37 @@
     <!-- Front of robot, tilted down 30 degrees -->
     <origin xyz="0.175 0 0.04" rpy="0 -0.523 0"/>
   </joint>
-
 <gazebo>
-	<plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
-		<left_joint>front_left_wheel_joint</left_joint>
-		<right_joint>front_right_wheel_joint</right_joint>
-		<wheel_separation>0.28</wheel_separation>
-		<wheel_radius>0.05</wheel_radius>
-		<odom_publish_frequency>10</odom_publish_frequency>
-		<topic>/model/my_robot/cmd_vel</topic>
-		<odom_topic>/model/my_robot/odometry</odom_topic>
-		<frame_id>odom</frame_id>
-		<child_frame_id>base_link</child_frame_id>
-	</plugin>
+  <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
+    <left_joint>front_left_wheel_joint</left_joint>
+    <left_joint>rear_left_wheel_joint</left_joint>
+    <right_joint>front_right_wheel_joint</right_joint>
+    <right_joint>rear_right_wheel_joint</right_joint>
+    <wheel_separation>0.28</wheel_separation>
+    <wheel_radius>0.05</wheel_radius>
+    <odom_publish_frequency>20</odom_publish_frequency>
+    <topic>/model/my_robot/cmd_vel</topic>
+    <odom_topic>/model/my_robot/odometry</odom_topic>
+    <frame_id>odom</frame_id>
+    <child_frame_id>base_footprint</child_frame_id>
+  </plugin>
+  <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+    <update_rate>20</update_rate>
+    <topic>/joint_states</topic>
+    <joint_name>front_left_wheel_joint</joint_name>
+    <joint_name>front_right_wheel_joint</joint_name>
+    <joint_name>rear_left_wheel_joint</joint_name>
+    <joint_name>rear_right_wheel_joint</joint_name>
+  </plugin>
 </gazebo>
 
 <gazebo reference="lidar_link">
-  <sensor name="lidar" type="lidar">
+  <sensor name="lidar" type="gpu_lidar">
     <topic>/scan</topic>
     <update_rate>10</update_rate>
+    <gz_frame_id>lidar_link</gz_frame_id>
+    <frame_id>lidar_link</frame_id>
+    <ignition_frame_id>lidar_link</ignition_frame_id>
     <lidar>
       <scan>
         <horizontal>
@@ -241,6 +269,9 @@
     <always_on>1</always_on>
     <update_rate>100</update_rate>
     <topic>/imu</topic>
+    <gz_frame_id>base_link</gz_frame_id>
+    <frame_id>base_link</frame_id>
+    <ignition_frame_id>base_link</ignition_frame_id>
     <visualize>true</visualize>
   </sensor>
 </gazebo>
@@ -248,6 +279,9 @@
 <gazebo reference="camera_link">
   <sensor name="camera" type="camera">
     <topic>/camera/image_raw</topic>
+    <gz_frame_id>camera_link</gz_frame_id>
+    <frame_id>camera_link</frame_id>
+    <ignition_frame_id>camera_link</ignition_frame_id>
     <update_rate>30</update_rate>
     <camera>
       <horizontal_fov>1.3962634</horizontal_fov>
@@ -265,6 +299,6 @@
     <visualize>true</visualize>
   </sensor>
 </gazebo>
-<!-- <xacro:include filename="$(find arm_description)/urdf/arm.urdf.xacro"/> -->
+
 
 </robot>

@@ -1,9 +1,0 @@
-string sensor_name
-float64 target_value
----
-float64 calibrated_offset
-bool success
-string message
----
-float64 progress
-string current_step

@@ -11,10 +11,7 @@ find_package(ament_cmake REQUIRED)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
-install(DIRECTORY urdf launch config
-  DESTINATION share/${PROJECT_NAME}
-)
-install(DIRECTORY urdf launch config worlds
+install(DIRECTORY urdf launch config worlds maps
   DESTINATION share/${PROJECT_NAME}
 )
 if(BUILD_TESTING)
