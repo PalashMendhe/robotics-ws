@@ -25,7 +25,6 @@ setup(
     entry_points={
     'console_scripts': [
         'broadcaster_node = nav_nodes.broadcaster_node:main',
-        'waypoint_navigator = nav_nodes.waypoint_navigator:main',
     ],
     },
 )

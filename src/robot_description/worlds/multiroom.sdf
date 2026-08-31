@@ -592,19 +592,19 @@
     <!-- ================================================================= -->
     <model name="shelf_1">
       <static>true</static>
-      <pose>0.4 0.3 0.2 0 0 0</pose>
+      <pose>0.55 0.3 0.2 0 0 0</pose>
       <link name="link">
         <collision name="collision">
           <geometry>
             <box>
-              <size>0.6 0.4 0.4</size>
+              <size>0.8 0.4 0.4</size>
             </box>
           </geometry>
         </collision>
         <visual name="visual">
           <geometry>
             <box>
-              <size>0.6 0.4 0.4</size>
+              <size>0.8 0.4 0.4</size>
             </box>
           </geometry>
           <material>
@@ -616,180 +616,11 @@
     </model>
 
     <!-- ================================================================= -->
-    <!-- ROBOTIC ARM 1 (Mounted on Shelf 1 at z=0.4m)                       -->
-    <!-- Reach: Link1=0.20m, Link2=0.20m, Link3=0.10m                      -->
-    <!-- ================================================================= -->
-    <model name="arm_1">
-      <static>true</static>
-      <pose>0.3 0.3 0.4 0 0 0</pose>
-      <link name="arm_base">
-        <!-- Base Pedestal -->
-        <visual name="visual_base">
-          <pose>0 0 0.02 0 0 0</pose>
-          <geometry>
-            <cylinder>
-              <radius>0.06</radius>
-              <length>0.04</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.2 0.2 0.2 1</ambient>
-            <diffuse>0.2 0.2 0.2 1</diffuse>
-          </material>
-        </visual>
-        <!-- Base Turret -->
-        <visual name="visual_turret">
-          <pose>0 0 0.05 0 0 0</pose>
-          <geometry>
-            <cylinder>
-              <radius>0.045</radius>
-              <length>0.02</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.15 0.15 0.15 1</ambient>
-            <diffuse>0.15 0.15 0.15 1</diffuse>
-          </material>
-        </visual>
-        <!-- Link 1 (Upper Arm, Length = 0.20m) -->
-        <visual name="visual_link1">
-          <pose>0 0 0.16 0 0 0</pose>
-          <geometry>
-            <cylinder>
-              <radius>0.03</radius>
-              <length>0.20</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.95 0.45 0.05 1</ambient>
-            <diffuse>0.95 0.45 0.05 1</diffuse>
-          </material>
-        </visual>
-        <!-- Joint 1 Knuckle / Housing -->
-        <visual name="visual_joint1_cyl">
-          <pose>0 0 0.26 1.570796 0 0</pose>
-          <geometry>
-            <cylinder>
-              <radius>0.035</radius>
-              <length>0.07</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.15 0.15 0.15 1</ambient>
-            <diffuse>0.15 0.15 0.15 1</diffuse>
-          </material>
-        </visual>
-        <visual name="visual_joint1_sph">
-          <pose>0 0 0.26 0 0 0</pose>
-          <geometry>
-            <sphere>
-              <radius>0.036</radius>
-            </sphere>
-          </geometry>
-          <material>
-            <ambient>0.15 0.15 0.15 1</ambient>
-            <diffuse>0.15 0.15 0.15 1</diffuse>
-          </material>
-        </visual>
-        <!-- Link 2 (Forearm, Length = 0.20m, tilted 35 deg forward) -->
-        <visual name="visual_link2">
-          <pose>0.057358 0 0.341915 0 0.610865 0</pose>
-          <geometry>
-            <cylinder>
-              <radius>0.025</radius>
-              <length>0.20</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.95 0.45 0.05 1</ambient>
-            <diffuse>0.95 0.45 0.05 1</diffuse>
-          </material>
-        </visual>
-        <!-- Joint 2 Knuckle / Housing -->
-        <visual name="visual_joint2_cyl">
-          <pose>0.114715 0 0.423830 1.570796 0 0</pose>
-          <geometry>
-            <cylinder>
-              <radius>0.030</radius>
-              <length>0.06</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.15 0.15 0.15 1</ambient>
-            <diffuse>0.15 0.15 0.15 1</diffuse>
-          </material>
-        </visual>
-        <visual name="visual_joint2_sph">
-          <pose>0.114715 0 0.423830 0 0 0</pose>
-          <geometry>
-            <sphere>
-              <radius>0.031</radius>
-            </sphere>
-          </geometry>
-          <material>
-            <ambient>0.15 0.15 0.15 1</ambient>
-            <diffuse>0.15 0.15 0.15 1</diffuse>
-          </material>
-        </visual>
-        <!-- Link 3 (Wrist Shaft, Length = 0.10m, tilted down 110 deg) -->
-        <visual name="visual_link3">
-          <pose>0.161700 0 0.406729 0 1.919862 0</pose>
-          <geometry>
-            <cylinder>
-              <radius>0.02</radius>
-              <length>0.10</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.95 0.45 0.05 1</ambient>
-            <diffuse>0.95 0.45 0.05 1</diffuse>
-          </material>
-        </visual>
-        <!-- End Effector Flange Adapter -->
-        <visual name="visual_suction_flange">
-          <pose>0.215732 0 0.387063 0 1.919862 0</pose>
-          <geometry>
-            <cylinder>
-              <radius>0.025</radius>
-              <length>0.015</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.2 0.2 0.2 1</ambient>
-            <diffuse>0.2 0.2 0.2 1</diffuse>
-          </material>
-        </visual>
-        <!-- End Effector Suction Cup / Bellow -->
-        <visual name="visual_suction_gripper">
-          <pose>0.229827 0 0.381933 0 1.919862 0</pose>
-          <geometry>
-            <cylinder>
-              <radius>0.035</radius>
-              <length>0.015</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.08 0.08 0.08 1</ambient>
-            <diffuse>0.08 0.08 0.08 1</diffuse>
-          </material>
-        </visual>
-        <collision name="collision_arm1">
-          <pose>0.10 0 0.25 0 0 0</pose>
-          <geometry>
-            <box>
-              <size>0.3 0.15 0.5</size>
-            </box>
-          </geometry>
-        </collision>
-      </link>
-    </model>
-
-    <!-- ================================================================= -->
     <!-- BOX 1 (Spawned on Shelf 1, 0.15m x 0.15m x 0.12m, mass: 0.5kg)    -->
     <!-- 0.1m lateral from arm base on shelf surface (z = 0.46m)           -->
     <!-- ================================================================= -->
     <model name="box_1">
-      <pose>0.5 0.3 0.46 0 0 0</pose>
+      <pose>0.3 0.3 0.46 0 0 0</pose>
       <link name="link">
         <inertial>
           <mass>0.5</mass>
@@ -829,19 +660,19 @@
     <!-- ================================================================= -->
     <model name="shelf_2">
       <static>true</static>
-      <pose>6.8 5.8 0.2 0 0 0</pose>
+      <pose>6.65 5.8 0.2 0 0 0</pose>
       <link name="link">
         <collision name="collision">
           <geometry>
             <box>
-              <size>0.6 0.4 0.4</size>
+              <size>0.8 0.4 0.4</size>
             </box>
           </geometry>
         </collision>
         <visual name="visual">
           <geometry>
             <box>
-              <size>0.6 0.4 0.4</size>
+              <size>0.8 0.4 0.4</size>
             </box>
           </geometry>
           <material>
@@ -853,179 +684,10 @@
     </model>
 
     <!-- ================================================================= -->
-    <!-- ROBOTIC ARM 2 (Mounted on Shelf 2 at z=0.4m)                       -->
-    <!-- Reach: Link1=0.20m, Link2=0.20m, Link3=0.10m                      -->
-    <!-- ================================================================= -->
-    <model name="arm_2">
-      <static>true</static>
-      <pose>6.9 5.8 0.4 0 0 3.14159</pose>
-      <link name="arm_base">
-        <!-- Base Pedestal -->
-        <visual name="visual_base">
-          <pose>0 0 0.02 0 0 0</pose>
-          <geometry>
-            <cylinder>
-              <radius>0.06</radius>
-              <length>0.04</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.2 0.2 0.2 1</ambient>
-            <diffuse>0.2 0.2 0.2 1</diffuse>
-          </material>
-        </visual>
-        <!-- Base Turret -->
-        <visual name="visual_turret">
-          <pose>0 0 0.05 0 0 0</pose>
-          <geometry>
-            <cylinder>
-              <radius>0.045</radius>
-              <length>0.02</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.15 0.15 0.15 1</ambient>
-            <diffuse>0.15 0.15 0.15 1</diffuse>
-          </material>
-        </visual>
-        <!-- Link 1 (Upper Arm, Length = 0.20m) -->
-        <visual name="visual_link1">
-          <pose>0 0 0.16 0 0 0</pose>
-          <geometry>
-            <cylinder>
-              <radius>0.03</radius>
-              <length>0.20</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.95 0.45 0.05 1</ambient>
-            <diffuse>0.95 0.45 0.05 1</diffuse>
-          </material>
-        </visual>
-        <!-- Joint 1 Knuckle / Housing -->
-        <visual name="visual_joint1_cyl">
-          <pose>0 0 0.26 1.570796 0 0</pose>
-          <geometry>
-            <cylinder>
-              <radius>0.035</radius>
-              <length>0.07</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.15 0.15 0.15 1</ambient>
-            <diffuse>0.15 0.15 0.15 1</diffuse>
-          </material>
-        </visual>
-        <visual name="visual_joint1_sph">
-          <pose>0 0 0.26 0 0 0</pose>
-          <geometry>
-            <sphere>
-              <radius>0.036</radius>
-            </sphere>
-          </geometry>
-          <material>
-            <ambient>0.15 0.15 0.15 1</ambient>
-            <diffuse>0.15 0.15 0.15 1</diffuse>
-          </material>
-        </visual>
-        <!-- Link 2 (Forearm, Length = 0.20m, tilted 35 deg forward) -->
-        <visual name="visual_link2">
-          <pose>0.057358 0 0.341915 0 0.610865 0</pose>
-          <geometry>
-            <cylinder>
-              <radius>0.025</radius>
-              <length>0.20</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.95 0.45 0.05 1</ambient>
-            <diffuse>0.95 0.45 0.05 1</diffuse>
-          </material>
-        </visual>
-        <!-- Joint 2 Knuckle / Housing -->
-        <visual name="visual_joint2_cyl">
-          <pose>0.114715 0 0.423830 1.570796 0 0</pose>
-          <geometry>
-            <cylinder>
-              <radius>0.030</radius>
-              <length>0.06</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.15 0.15 0.15 1</ambient>
-            <diffuse>0.15 0.15 0.15 1</diffuse>
-          </material>
-        </visual>
-        <visual name="visual_joint2_sph">
-          <pose>0.114715 0 0.423830 0 0 0</pose>
-          <geometry>
-            <sphere>
-              <radius>0.031</radius>
-            </sphere>
-          </geometry>
-          <material>
-            <ambient>0.15 0.15 0.15 1</ambient>
-            <diffuse>0.15 0.15 0.15 1</diffuse>
-          </material>
-        </visual>
-        <!-- Link 3 (Wrist Shaft, Length = 0.10m, tilted down 110 deg) -->
-        <visual name="visual_link3">
-          <pose>0.161700 0 0.406729 0 1.919862 0</pose>
-          <geometry>
-            <cylinder>
-              <radius>0.02</radius>
-              <length>0.10</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.95 0.45 0.05 1</ambient>
-            <diffuse>0.95 0.45 0.05 1</diffuse>
-          </material>
-        </visual>
-        <!-- End Effector Flange Adapter -->
-        <visual name="visual_suction_flange">
-          <pose>0.215732 0 0.387063 0 1.919862 0</pose>
-          <geometry>
-            <cylinder>
-              <radius>0.025</radius>
-              <length>0.015</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.2 0.2 0.2 1</ambient>
-            <diffuse>0.2 0.2 0.2 1</diffuse>
-          </material>
-        </visual>
-        <!-- End Effector Suction Cup / Bellow -->
-        <visual name="visual_suction_gripper">
-          <pose>0.229827 0 0.381933 0 1.919862 0</pose>
-          <geometry>
-            <cylinder>
-              <radius>0.035</radius>
-              <length>0.015</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.08 0.08 0.08 1</ambient>
-            <diffuse>0.08 0.08 0.08 1</diffuse>
-          </material>
-        </visual>
-        <collision name="collision_arm2">
-          <pose>0.10 0 0.25 0 0 0</pose>
-          <geometry>
-            <box>
-              <size>0.3 0.15 0.5</size>
-            </box>
-          </geometry>
-        </collision>
-      </link>
-    </model>
-
-    <!-- ================================================================= -->
     <!-- BOX 2 (Destination / Target zone on Shelf 2)                       -->
     <!-- ================================================================= -->
     <model name="box_2">
-      <pose>6.7 5.8 0.46 0 0 0</pose>
+      <pose>6.9 5.8 0.46 0 0 0</pose>
       <link name="link">
         <inertial>
           <mass>0.5</mass>

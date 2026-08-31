@@ -1,21 +1,38 @@
-arm:
-  controller_manager:
-    ros__parameters:
-      update_rate: 100
-      joint_state_broadcaster:
-        type: joint_state_broadcaster/JointStateBroadcaster
-      arm_controller:
-        type: joint_trajectory_controller/JointTrajectoryController
+controller_manager:
+  ros__parameters:
+    update_rate: 100
 
-  arm_controller:
-    ros__parameters:
-      joints:
-        - shoulder_pan_joint
-        - shoulder_pitch_joint
-        - wrist_pitch_joint
-      command_interfaces:
-        - position
-      state_interfaces:
-        - position
-        - velocity
-      goal_time_tolerance: 1.0
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    gripper_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+arm_controller:
+  ros__parameters:
+    joints:
+      - arm_base_joint
+      - upper_arm_joint
+      - forearm_joint
+      - wrist_joint
+      - gripper_baseTOwrist_joint
+      - gripper_base_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+
+gripper_controller:
+  ros__parameters:
+    joints:
+      - right_prong_joint
+      - left_prong_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity

@@ -27,17 +27,23 @@ class broadcaster_node(Node):
         )
           
         self.tf_broadcaster = TransformBroadcaster(self)
+        self.last_stamp_nanos = 0
         self.get_logger().info('Subscribed to /model/my_robot/odometry -> broadcasting odom to base_footprint')
 
     def odom_callback(self, msg):
-        transform = TransformStamped()
-        
-        # Use message stamp if valid, otherwise use node sim time
-        if msg.header.stamp.sec != 0 or msg.header.stamp.nanosec != 0:
-            transform.header.stamp = msg.header.stamp
-        else:
-            transform.header.stamp = self.get_clock().now().to_msg()
+        # Use the actual odometry timestamp so AMCL's motion model stays consistent.
+        # Enforce monotonically increasing timestamps to prevent TF_OLD_DATA warnings.
+        msg_nanos = msg.header.stamp.sec * 1_000_000_000 + msg.header.stamp.nanosec
 
+        if msg_nanos == 0:
+            return  # Gazebo not yet running / clock not synced
+
+        if msg_nanos <= self.last_stamp_nanos:
+            return  # Drop duplicate or out-of-order message
+        self.last_stamp_nanos = msg_nanos
+
+        transform = TransformStamped()
+        transform.header.stamp = msg.header.stamp
         transform.header.frame_id = msg.header.frame_id if msg.header.frame_id else 'odom'
         transform.child_frame_id = msg.child_frame_id if msg.child_frame_id else 'base_footprint'
         transform.transform.translation.x = msg.pose.pose.position.x
