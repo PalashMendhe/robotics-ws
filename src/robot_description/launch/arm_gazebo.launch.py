@@ -1,6 +1,7 @@
 import os
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
+from launch.actions import (DeclareLaunchArgument, IncludeLaunchDescription,
+                            TimerAction)
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
@@ -106,6 +107,15 @@ def generate_launch_description():
     arm_urdf  = os.path.join(pkg_path, 'urdf', 'arm.urdf.xacro')
     controllers = os.path.join(pkg_path, 'config', 'arm_controllers.yaml')
 
+    # Set GZ_SIM_RESOURCE_PATH at Python parse time so Gazebo subprocess inherits
+    # it before the world is loaded. The models/ directory contains the ArUco
+    # marker models referenced via model://aruco_marker_N in multiroom.sdf.
+    models_path = os.path.join(pkg_path, 'models')
+    existing    = os.environ.get('GZ_SIM_RESOURCE_PATH', '')
+    os.environ['GZ_SIM_RESOURCE_PATH'] = (
+        models_path + (':' + existing if existing else '')
+    )
+
     use_sim_time = LaunchConfiguration('use_sim_time')
 
     # ── Gazebo + Differential Drive Bot ─────────────────────────────────────
@@ -149,18 +159,35 @@ def generate_launch_description():
         # 1. Gazebo world + differential drive bot
         gazebo_launch,
 
-        # 2. Arm 1 RSP  (shelf 1)
+        # 2. Arm RSPs
         arm1_rsp,
-        # 3. Arm 2 RSP  (shelf 2)
         arm2_rsp,
 
-        # 4. Spawn both arms after Gazebo world is ready
+        # 3. Spawn both arms after Gazebo world is ready
         arm1_spawn,
         arm2_spawn,
 
-        # 5. Controllers for both arms
+        # 4. Controllers for both arms
         arm1_ctrl,
         arm2_ctrl,
+
+        # 5. ArUco detector — starts after cameras are publishing (t=6 s)
+        TimerAction(period=6.0, actions=[
+            Node(
+                package='nav_nodes',
+                executable='aruco_detector_node',
+                name='aruco_detector_node',
+                output='screen',
+                parameters=[{
+                    # Detectable marker = outer edge of the black border.
+                    # Panel face is 0.15 m, texture has a 1-module white quiet
+                    # zone around a 6-module marker -> marker spans 6/8 of the
+                    # face = 0.15 * 0.75 = 0.1125 m. Must match the texture.
+                    'marker_size': 0.1125,
+                    'dict_id':     0,     # DICT_4X4_50
+                }],
+            ),
+        ]),
     ])
 
 

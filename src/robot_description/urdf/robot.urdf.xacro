@@ -309,8 +309,11 @@
     <origin xyz="0.0 0 0.030" rpy="0 0 0"/>
   </joint>
 
-  <!-- ==================== CAMERA ==================== -->
-  <link name="camera_link">
+  <!-- ==================== CAMERA FRONT ====================
+       Faces forward (+X), tilted down 30° to see floor/markers on approach.
+       Topic: /camera/front/image_raw
+  -->
+  <link name="camera_link_1">
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
@@ -329,11 +332,43 @@
     <xacro:box_inertia m="0.1" x="0.05" y="0.05" z="0.03"/>
   </link>
 
-  <joint name="camera_joint" type="fixed">
+  <joint name="camera_joint_1" type="fixed">
     <parent link="base_link"/>
-    <child link="camera_link"/>
-    <!-- Front of robot, tilted down 30 degrees -->
+    <child link="camera_link_1"/>
+    <!-- Front face of robot (base_length/2=0.175), same height as cover_plate top -->
     <origin xyz="0.175 0 0.04" rpy="0 -0.523 0"/>
+  </joint>
+
+  <!-- ==================== CAMERA REAR ====================
+       Faces backward (-X), tilted down ~20° to see shelf-face ArUco markers
+       during reverse docking. Yaw=π flips the camera 180°; pitch=+0.349
+       produces a downward look in world frame (tilt direction inverts with yaw).
+       Topic: /camera/rear/image_raw
+  -->
+  <link name="camera_link_2">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.05 0.03"/>
+      </geometry>
+      <material name="orange">
+        <color rgba="1.0 0.5 0.0 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.05 0.03"/>
+      </geometry>
+    </collision>
+    <xacro:box_inertia m="0.1" x="0.05" y="0.05" z="0.03"/>
+  </link>
+
+  <joint name="camera_joint_2" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_link_2"/>
+    <!-- Rear face of robot (x=-0.175), yaw=π faces backward, pitch=+0.349 tilts down ~20° -->
+    <origin xyz="-0.175 0 0.04" rpy="0 0.349 3.14159"/>
   </joint>
 
 <gazebo>
@@ -399,12 +434,12 @@
   </sensor>
 </gazebo>
 
-<gazebo reference="camera_link">
-  <sensor name="camera" type="camera">
-    <topic>/camera/image_raw</topic>
-    <gz_frame_id>camera_link</gz_frame_id>
-    <frame_id>camera_link</frame_id>
-    <ignition_frame_id>camera_link</ignition_frame_id>
+<gazebo reference="camera_link_1">
+  <sensor name="camera_front" type="camera">
+    <topic>/camera/front/image_raw</topic>
+    <gz_frame_id>camera_link_1</gz_frame_id>
+    <frame_id>camera_link_1</frame_id>
+    <ignition_frame_id>camera_link_1</ignition_frame_id>
     <update_rate>30</update_rate>
     <camera>
       <horizontal_fov>1.3962634</horizontal_fov>
@@ -423,5 +458,28 @@
   </sensor>
 </gazebo>
 
+<gazebo reference="camera_link_2">
+  <sensor name="camera_rear" type="camera">
+    <topic>/camera/rear/image_raw</topic>
+    <gz_frame_id>camera_link_2</gz_frame_id>
+    <frame_id>camera_link_2</frame_id>
+    <ignition_frame_id>camera_link_2</ignition_frame_id>
+    <update_rate>30</update_rate>
+    <camera>
+      <horizontal_fov>1.3962634</horizontal_fov>
+      <image>
+        <width>640</width>
+        <height>480</height>
+        <format>R8G8B8</format>
+      </image>
+      <clip>
+        <near>0.02</near>
+        <far>300</far>
+      </clip>
+    </camera>
+    <always_on>1</always_on>
+    <visualize>true</visualize>
+  </sensor>
+</gazebo>
 
 </robot>

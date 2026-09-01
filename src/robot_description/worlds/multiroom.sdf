@@ -827,5 +827,99 @@
       </link>
     </model>
 
+
+    <!-- ================================================================= -->
+    <!-- ARUCO MARKERS                                                       -->
+    <!-- Dictionary: DICT_4X4_50                                             -->
+    <!-- Panel face: 0.15 m (texture incl. 1-module white quiet zone);       -->
+    <!-- detectable marker (black-border outer edge) = 0.1125 m — keep       -->
+    <!-- aruco_detector_node's marker_size param in sync (0.1125).           -->
+    <!--                                                                     -->
+    <!-- ID 0 — Room 2 south APPROACH wall (front camera detects)           -->
+    <!--         Shelf 1 is at y=0.3; robot enters from y>0 direction       -->
+    <!--         Panel on south wall (y≈-0.1), facing +Y toward robot       -->
+    <!-- ID 1 — Shelf 1 DOCK marker (rear camera detects while reversing)   -->
+    <!--         On the +Y face of shelf_1 (y=0.5); robot backs from +Y     -->
+    <!-- ID 2 — Room 3 west APPROACH wall (front camera detects)            -->
+    <!--         Shelf 2 is at x=6.65; robot enters Room 3 from x<3.6      -->
+    <!--         Panel on west wall (x≈3.6 doorway side), facing +X         -->
+    <!-- ID 3 — Shelf 2 DOCK marker (rear camera detects while reversing)   -->
+    <!--         On the -Y face of shelf_2 (y=5.6); robot backs from -Y    -->
+    <!-- ================================================================= -->
+ 
+    <!-- aruco_1: dock marker, +Y face of shelf_1
+         shelf_1 centre y=0.3, half-width=0.2 → +Y face at y=0.5
+         Place panel flush on that face, facing +X toward the reversing robot -->
+    <model name="aruco_dock_shelf1">
+      <pose>0.025 0.7431 0.2025 0 0 1.5707</pose>
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.15 0.002 0.15</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+            <specular>0 0 0 1</specular>
+            <pbr>
+              <metal>
+                <albedo_map>file:///home/jade/Desktop/robotics-ws/src/robot_description/models/aruco_marker_0/materials/textures/aruco_0.png</albedo_map>
+                <metalness>0.0</metalness>
+                <roughness>1.0</roughness>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.15 0.002 0.15</size>
+            </box>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+
+    <!-- aruco_2: approach marker, west wall of Room 3 doorway, facing +X
+         Room 3 entered via doorway at x≈3.6. Place on the east side of the
+         shared wall (x≈3.7), facing +X toward the robot entering from the left.
+         Yaw=1.5707: panel thin in X, visible face toward -X -->
+    <model name="aruco_dock_shelf2">
+      <pose>7.185 5.4463 0.2025 0 0 -1.5707</pose>
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.15 0.002 0.15</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+            <specular>0 0 0 1</specular>
+            <pbr>
+              <metal>
+                <albedo_map>file:///home/jade/Desktop/robotics-ws/src/robot_description/models/aruco_marker_1/materials/textures/aruco_1.png</albedo_map>
+                <metalness>0.0</metalness>
+                <roughness>1.0</roughness>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.15 0.002 0.15</size>
+            </box>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+
   </world>
 </sdf>
+
