@@ -1,4 +1,22 @@
-controller_manager:
+# Controller manager sections are keyed by FULLY QUALIFIED node name because
+# each arm runs its own namespaced CM (/arm1/controller_manager,
+# /arm2/controller_manager). A relative "controller_manager:" key was NOT
+# picked up — the CMs failed with "The 'type' param was not defined for
+# 'joint_state_broadcaster'".
+/arm1/controller_manager:
+  ros__parameters:
+    update_rate: 100
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    gripper_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+/arm2/controller_manager:
   ros__parameters:
     update_rate: 100
 
@@ -20,6 +38,61 @@ arm_controller:
       - wrist_joint
       - gripper_baseTOwrist_joint
       - gripper_base_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+
+# FQN sections: the controllers' yaml reaches the node via the CM-injected
+# --params-file arg, and relative-name matching does not apply there —
+# without these the controllers init with an empty 'joints' parameter.
+/arm1/arm_controller:
+  ros__parameters:
+    joints:
+      - arm_base_joint
+      - upper_arm_joint
+      - forearm_joint
+      - wrist_joint
+      - gripper_baseTOwrist_joint
+      - gripper_base_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+
+/arm2/arm_controller:
+  ros__parameters:
+    joints:
+      - arm_base_joint
+      - upper_arm_joint
+      - forearm_joint
+      - wrist_joint
+      - gripper_baseTOwrist_joint
+      - gripper_base_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+
+/arm1/gripper_controller:
+  ros__parameters:
+    joints:
+      - right_prong_joint
+      - left_prong_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+
+/arm2/gripper_controller:
+  ros__parameters:
+    joints:
+      - right_prong_joint
+      - left_prong_joint
     command_interfaces:
       - position
     state_interfaces:

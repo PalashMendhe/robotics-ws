@@ -39,6 +39,18 @@
          sfp_ctr      = cover_top_z + stdh + sfh/2= 0.045+0.052+0.005 = 0.102
   -->
 
+  <!-- Tray walls (funnel) mounted on standoff_floor.
+       Provide a 30 mm lip angled 15° outward to guide the delivery box to
+       centre even if the arm drops it up to ~50 mm off-centre.
+       wall_h   = 0.030  (lip height above floor top surface)
+       wall_t   = 0.006  (wall thickness)
+       tilt     = 15°    (0.5236 rad) outward on each wall
+       Joint z  = sfp_half_h + wall_half_h = 0.005 + 0.015 = 0.020
+  -->
+  <xacro:property name="tray_wall_h"    value="0.045"/>
+  <xacro:property name="tray_wall_t"    value="0.006"/>
+  <xacro:property name="tray_wall_mass" value="0.02"/>
+
   <!-- ==================== INERTIA MACROS ==================== -->
   <xacro:macro name="box_inertia" params="m x y z">
     <inertial>
@@ -111,8 +123,12 @@
     </joint>
 
     <gazebo reference="${name}_wheel">
-      <mu1>0.8</mu1>
-      <mu2>0.05</mu2>
+      <!-- mu1/mu2 tuning for 4-fixed-wheel skid-steer:
+           mu2 too high -> bot cannot pivot (wheels scrub, chassis stalls);
+           mu2 too low  -> bot SLIDES sideways during turns (odometry lies).
+           0.3 = compromise: pivots with moderate scrub. Verified live. -->
+      <mu1>1.1</mu1>
+      <mu2>0.3</mu2>
       <kp>100000.0</kp>
       <kd>10.0</kd>
     </gazebo>
@@ -156,7 +172,44 @@
     </joint>
   </xacro:macro>
 
+  <!-- ==================== TRAY WALL MACRO ====================
+       A single retention lip fixed to standoff_floor.
+       params:
+         name        – unique suffix (front / rear / left / right)
+         wx / wy     – box dimensions in X and Y (one axis = tray_wall_t)
+         x_off/y_off – wall centre relative to standoff_floor centre
+         rpy         – outward tilt (15° = 0.5236 rad around relevant axis)
+       z joint = sfp_half_h + wall_half_h = 0.005 + 0.015 = 0.020
+  -->
+  <xacro:macro name="tray_wall" params="name wx wy x_off y_off rpy">
+    <link name="tray_wall_${name}">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${wx} ${wy} ${tray_wall_h}"/>
+        </geometry>
+        <material name="orange_tray">
+          <color rgba="1.0 0.45 0.0 1"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${wx} ${wy} ${tray_wall_h}"/>
+        </geometry>
+      </collision>
+      <xacro:box_inertia m="${tray_wall_mass}" x="${wx}" y="${wy}" z="${tray_wall_h}"/>
+    </link>
+    <joint name="tray_wall_${name}_joint" type="fixed">
+      <parent link="standoff_floor"/>
+      <child  link="tray_wall_${name}"/>
+      <!-- z: sfp_half_h + wall_half_h = 0.005 + 0.015 = 0.020 -->
+      <origin xyz="${x_off} ${y_off} 0.020" rpy="${rpy}"/>
+    </joint>
+  </xacro:macro>
+
   <!-- ==================== BASE FOOTPRINT ==================== -->
+
   <link name="base_footprint"/>
 
   <joint name="base_footprint_joint" type="fixed">
@@ -276,7 +329,49 @@
     <origin xyz="0 0 0.062" rpy="0 0 0"/>
   </joint>
 
+  <!-- ==================== TRAY WALLS (4 retention lips on standoff_floor) ====================
+       standoff_floor: 0.35 m (X) × 0.25 m (Y) × 0.01 m (Z)
+       Height: 0.030 m  |  Tilt: 15° outward  |  Joint z = 0.020 (sfp_half + wall_half)
+       Front/rear walls span full Y width.  Left/right walls span inner X (fit between front/rear).
+       Tilt rotations (right-hand rule, outward = away from tray centre):
+         front (+X): pitch +0.5236   rear (−X): pitch −0.5236
+         left  (+Y): roll  −0.5236   right(−Y): roll  +0.5236
+  -->
+  <!-- Front wall: spans full Y width, sits at +X edge, top tilts outward (+X) -->
+  <xacro:tray_wall name="front"
+    wx="${tray_wall_t}"
+    wy="${standoff_floor_width}"
+    x_off="${standoff_floor_length/2 - tray_wall_t/2}"
+    y_off="0"
+    rpy="0 0.5236 0"/>
+
+  <!-- Rear wall: spans full Y width, sits at -X edge, top tilts outward (-X) -->
+  <xacro:tray_wall name="rear"
+    wx="${tray_wall_t}"
+    wy="${standoff_floor_width}"
+    x_off="${-(standoff_floor_length/2 - tray_wall_t/2)}"
+    y_off="0"
+    rpy="0 -0.5236 0"/>
+
+  <!-- Left wall: inner X span, sits at +Y edge, top tilts outward (+Y) -->
+  <xacro:tray_wall name="left"
+    wx="${standoff_floor_length - 2*tray_wall_t}"
+    wy="${tray_wall_t}"
+    x_off="0"
+    y_off="${standoff_floor_width/2 - tray_wall_t/2}"
+    rpy="-0.5236 0 0"/>
+
+  <!-- Right wall: inner X span, sits at -Y edge, top tilts outward (-Y) -->
+  <xacro:tray_wall name="right"
+    wx="${standoff_floor_length - 2*tray_wall_t}"
+    wy="${tray_wall_t}"
+    x_off="0"
+    y_off="${-(standoff_floor_width/2 - tray_wall_t/2)}"
+    rpy="0.5236 0 0"/>
+
+
   <!-- ==================== LIDAR ====================
+
        Mounts on top of cover_plate (centre of the plate).
        Parent: cover_plate.
        z = cover_plate_half_h + lidar_height/2 = 0.005 + 0.025 = 0.030

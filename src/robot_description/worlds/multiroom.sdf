@@ -643,7 +643,7 @@
         <visual name="visual">
           <geometry>
             <box>
-              <size>0.15 0.15 0.12</size>
+              <size>0.1 0.1 0.1</size>
             </box>
           </geometry>
           <material>
@@ -710,7 +710,7 @@
         <visual name="visual">
           <geometry>
             <box>
-              <size>0.15 0.15 0.12</size>
+              <size>0.1 0.1 0.1</size>
             </box>
           </geometry>
           <material>
@@ -847,11 +847,14 @@
     <!--         On the -Y face of shelf_2 (y=5.6); robot backs from -Y    -->
     <!-- ================================================================= -->
  
-    <!-- aruco_1: dock marker, +Y face of shelf_1
-         shelf_1 centre y=0.3, half-width=0.2 → +Y face at y=0.5
-         Place panel flush on that face, facing +X toward the reversing robot -->
+    <!-- aruco_1: Shelf 1 DOCK marker (ID 0, rear camera detects while
+         reversing). Actual pose (0.025, 0.7431, 0.13), yaw=1.5707: a free-
+         standing panel north-west of shelf_1, face normal +X — the bot
+         aligns at yaw=0 and backs up so its rear camera (-X) sees it.
+         NOTE: NOT flush on shelf_1's +Y face despite older comments.
+         docking_node default pre-dock waypoint: (0.7, 0.7431, yaw=0). -->
     <model name="aruco_dock_shelf1">
-      <pose>0.025 0.7431 0.2025 0 0 1.5707</pose>
+      <pose>0.025 0.7431 0.13 0 0 1.5707</pose>
       <static>true</static>
       <link name="link">
         <visual name="visual">
@@ -883,12 +886,14 @@
       </link>
     </model>
 
-    <!-- aruco_2: approach marker, west wall of Room 3 doorway, facing +X
-         Room 3 entered via doorway at x≈3.6. Place on the east side of the
-         shared wall (x≈3.7), facing +X toward the robot entering from the left.
-         Yaw=1.5707: panel thin in X, visible face toward -X -->
+    <!-- aruco_2: Shelf 2 DOCK marker (ID 1, rear camera detects while
+         reversing). Actual pose (7.185, 5.4463, 0.13), yaw=-1.5707: a free-
+         standing panel east of shelf_2, face normal -X — the bot aligns at
+         yaw=π and backs up so its rear camera (+X) sees it.
+         NOTE: NOT on the -Y face of shelf_2 despite older comments.
+         docking_node params: marker_id=1, pre_dock=(6.9, 5.4463, yaw=π). -->
     <model name="aruco_dock_shelf2">
-      <pose>7.185 5.4463 0.2025 0 0 -1.5707</pose>
+      <pose>7.185 5.4463 0.13 0 0 -1.5707</pose>
       <static>true</static>
       <link name="link">
         <visual name="visual">

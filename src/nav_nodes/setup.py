@@ -26,6 +26,8 @@ setup(
     'console_scripts': [
         'broadcaster_node    = nav_nodes.broadcaster_node:main',
         'aruco_detector_node = nav_nodes.aruco_detector_node:main',
+        'arm_controller_node = nav_nodes.arm_controller_node:main',
+        'docking_node        = nav_nodes.docking_node:main',
     ],
     },
 )

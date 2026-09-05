@@ -60,31 +60,52 @@
         izz="${(1/12)*m*(x*x+y*y)}"/>
     </inertial>
   </xacro:macro>
-  <!-- ==================== ARM BASE LINK ==================== -->
+  <!-- ==================== PEDESTAL & ARM BASE ==================== -->
   <link name="world"/>
-  <link name="arm_base_link">
-  <visual>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <geometry>
-      <cylinder radius="${arm_base_link_radius}" length="${arm_base_link_height}"/>
-    </geometry>
-    <material name="black">
-      <color rgba="0.1 0.1 0.1 1"/>
-    </material>
-  </visual>
-  <collision>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <geometry>
-      <cylinder radius="0.05" length="0.02"/>
-    </geometry>
-  </collision>
-  <xacro:cylinder_inertia m="${arm_base_link_weight}" r="${arm_base_link_radius}" h="${arm_base_link_height}"/>
+  
+  <link name="pedestal">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.3 0.3 0.03"/></geometry>
+      <material name="dark_grey"><color rgba="0.2 0.2 0.2 1"/></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.3 0.3 0.03"/></geometry>
+    </collision>
+    <xacro:box_inertia m="10.0" x="0.3" y="0.3" z="0.03"/>
   </link>
-  <!-- Joint 1: shoulder pan  — d1=0.089 m up, alpha=+90 deg -->
-  <joint name="arm_base_joint" type="revolute">
+
+  <joint name="pedestal_joint" type="fixed">
     <parent link="world"/>
+    <child link="pedestal"/>
+    <origin xyz="0 0 0.015" rpy="0 0 0"/>
+  </joint>
+
+  <link name="arm_base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="${arm_base_link_radius}" length="${arm_base_link_height}"/>
+      </geometry>
+      <material name="black">
+        <color rgba="0.1 0.1 0.1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.05" length="0.02"/>
+      </geometry>
+    </collision>
+    <xacro:cylinder_inertia m="${arm_base_link_weight}" r="${arm_base_link_radius}" h="${arm_base_link_height}"/>
+  </link>
+
+  <!-- Joint 1: shoulder pan  — mounted to pedestal top -->
+  <joint name="arm_base_joint" type="revolute">
+    <parent link="pedestal"/>
     <child link="arm_base_link"/>
-    <origin xyz="0.0 0 0.01" rpy="0 0 0"/>
+    <origin xyz="0.0 0 0.025" rpy="0 0 0"/> <!-- 0.015 (half pedestal) + 0.01 = 0.025 -->
     <limit lower="-3.14" upper="3.14" effort="150" velocity="3.14"/>
     <axis xyz="0 0 1"/>
   </joint>
@@ -113,7 +134,7 @@
   <joint name="upper_arm_joint" type="revolute">
     <parent link="arm_base_link"/>
     <child link="upper_arm_link"/>
-    <origin xyz="0 0 0.01" rpy="0 -1.5707 0"/>
+    <origin xyz="0 0 0.01" rpy="0 0 0"/>
     <limit lower="-3.14" upper="3.14" effort="150" velocity="3.14"/>
     <axis xyz="0 1 0"/>
   </joint>
@@ -180,7 +201,7 @@
   <joint name="forearm_joint" type="revolute">
     <parent link="upper_arm_link"/>
     <child link="forearm_link"/>
-    <origin xyz="0 0 ${a2}" rpy="0 0 0"/>
+    <origin xyz="0 0 ${a2}" rpy="0 -1.5707 0"/>
     <limit lower="-3.14" upper="3.14" effort="150" velocity="3.14"/>
     <axis xyz="0 1 0"/>
   </joint>
@@ -228,7 +249,7 @@
   <joint name="wrist_joint" type="revolute">
     <parent link="forearm_link"/>
     <child link="wrist_link"/>
-    <origin xyz="0 0 ${a3}" rpy="1.5707 0 0"/>
+    <origin xyz="0 0 ${a3}" rpy="1.5707 -0.7854 0"/>
     <limit lower="-3.14" upper="3.14" effort="28" velocity="3.14"/>
     <axis xyz="0 0 1"/>
   </joint>
@@ -373,57 +394,57 @@
   </joint>
   <!-- =================================================== -->
   <!-- ros2_control hardware interface -->
-<ros2_control name="arm_system" type="system">
-  <hardware>
-    <plugin>gz_ros2_control/GazeboSimSystem</plugin>
-  </hardware>
-  <joint name="arm_base_joint">
-    <command_interface name="position"/>
-    <state_interface name="position"/>
-    <state_interface name="velocity"/>
-  </joint>
-  <joint name="upper_arm_joint">
-    <command_interface name="position"/>
-    <state_interface name="position">
-      <param name="initial_value">1.57</param>
-    </state_interface>
-    <state_interface name="velocity"/>
-  </joint>
-  <joint name="forearm_joint">
-    <command_interface name="position"/>
-    <state_interface name="position">
-      <param name="initial_value">-1.57</param>
-    </state_interface>
-    <state_interface name="velocity"/>
-  </joint>
-  <joint name="wrist_joint">
-    <command_interface name="position"/>
-    <state_interface name="position">
-      <param name="initial_value">-1.57</param>
-    </state_interface>
-    <state_interface name="velocity"/>
-  </joint>
-  <joint name="gripper_baseTOwrist_joint">
-    <command_interface name="position"/>
-    <state_interface name="position"/>
-    <state_interface name="velocity"/>
-  </joint>
-  <joint name="gripper_base_joint">
-    <command_interface name="position"/>
-    <state_interface name="position"/>
-    <state_interface name="velocity"/>
-  </joint>
-  <joint name="right_prong_joint">
-    <command_interface name="position"/>
-    <state_interface name="position"/>
-    <state_interface name="velocity"/>
-  </joint>
-  <joint name="left_prong_joint">
-    <command_interface name="position"/>
-    <state_interface name="position"/>
-    <state_interface name="velocity"/>
-  </joint>
-</ros2_control>
+  <ros2_control name="arm_system" type="system">
+    <hardware>
+      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+    </hardware>
+    <joint name="arm_base_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="upper_arm_joint">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">1.57</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="forearm_joint">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">-1.57</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="wrist_joint">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">-1.57</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="gripper_baseTOwrist_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="gripper_base_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="right_prong_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="left_prong_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
 
   <!-- ==================== GAZEBO FRICTION & CONTACT PROPERTIES ==================== -->
   <gazebo reference="right_prong_link">
@@ -448,18 +469,24 @@
   <xacro:arg name="controllers_file" default=""/>
   <!-- Namespace for this arm instance (arm1 or arm2) -->
   <xacro:arg name="arm_namespace" default="arm1"/>
+  <xacro:property name="c_file" value="$(arg controllers_file)"/>
 
   <!-- gz_ros2_control plugin — each instance gets its own namespace so
        two arms can coexist with separate controller_managers -->
-  <gazebo>
-    <plugin filename="gz_ros2_control-system"
-            name="gz_ros2_control::GazeboSimROS2ControlPlugin">
-      <parameters>$(arg controllers_file)</parameters>
-      <robot_param>robot_description</robot_param>
-      <robot_param_node>arm_state_publisher</robot_param_node>
-      <ros>
-        <namespace>/$(arg arm_namespace)</namespace>
-      </ros>
-    </plugin>
-  </gazebo>
+  <xacro:if value="${c_file != ''}">
+    <gazebo>
+      <plugin filename="gz_ros2_control-system"
+              name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+        <parameters>$(arg controllers_file)</parameters>
+        <robot_param>robot_description</robot_param>
+        <robot_param_node>arm_state_publisher</robot_param_node>
+        <ros>
+          <namespace>/$(arg arm_namespace)</namespace>
+        </ros>
+      </plugin>
+    </gazebo>
+  </xacro:if>
+  <xacro:unless value="${c_file != ''}">
+    <gazebo><static>true</static></gazebo>
+  </xacro:unless>
 </robot>

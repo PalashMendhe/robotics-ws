@@ -197,3 +197,145 @@ estimates (`tvec`) come out ~25% too close — breaking docking distances.
 marker is being detected and age out of the TF buffer after ~10 s. Run
 `view_frames` during detection, not right after launch.
 
+---
+
+# Bug Report: `arm_controller_node` pick-and-place sequence never executes
+
+**Date:** 2026-09-02
+**Symptom reported by:** `ros2 run nav_nodes arm_controller_node`
+**Workspace:** `~/Desktop/robotics-ws`
+
+---
+
+## Symptom
+
+The node started normally and printed:
+
+```
+[INFO] [arm_controller_node]: arm_controller_node ready — waiting on /arm1/trigger
+```
+
+but after a trigger was received on `/arm1/trigger`, the pick-and-place
+sequence never played correctly: steps fired repeatedly at overlapping
+intervals, ran out of order, and `/arm1/done` was published prematurely and
+multiple times — the arm received conflicting trajectories.
+
+---
+
+## Root cause — rclpy timers repeat unless destroyed (primary)
+
+In `src/nav_nodes/nav_nodes/arm_controller_node.py`, the step chain was
+scheduled with:
+
+```python
+def _schedule_next(self, delay_secs):
+    self.create_timer(delay_secs, self._execute_step)
+
+def _execute_step(self):
+    # Cancel this one-shot timer (destroy after firing)
+    if self._step_idx >= len(self._steps):
+        ...
+```
+
+The comment claimed a *one-shot* timer, but **nothing was ever cancelled or
+destroyed**. In rclpy, `Node.create_timer()` creates a **repeating** timer —
+it keeps firing at its period forever unless `timer.cancel()` /
+`node.destroy_timer()` is called.
+
+Consequences once a trigger arrived:
+
+- every `_schedule_next()` call stacked a **new** timer on top of the ones
+  still running, so `N` timers were all firing `N` times per period,
+- `_step_idx` advanced once per *each* live timer firing (N increments per
+  tick), so steps executed out of order and far too fast,
+- `done` was published prematurely and repeatedly,
+- the arm got conflicting trajectories and the sequence never completed.
+
+### Not the problem (ruled out during diagnosis)
+
+- ✅ Node builds, runs, and spins — `ros2 run` reached the ready state
+- ✅ Topic names match: `/arm1/arm_controller/joint_trajectory` and
+  `/arm1/gripper_controller/joint_trajectory` match the controllers in
+  `arm_controllers.yaml` under the `/arm1` namespace used in
+  `arm_gazebo.launch.py`
+- ✅ Joint names in `ARM_JOINTS` / `GRIPPER_JOINTS` match the controller yaml
+  exactly
+- ✅ Trigger/done topics (`/arm1/trigger`, `/arm1/done`) consistent
+
+---
+
+## Fix applied
+
+`src/nav_nodes/nav_nodes/arm_controller_node.py` — store the timer handle and
+make each step a true one-shot:
+
+```python
+def _schedule_next(self, delay_secs):
+    # NOTE: rclpy timers repeat by default. The handle is stored so the
+    # timer can be cancelled/destroyed in _execute_step (one-shot behaviour).
+    self._timer = self.create_timer(delay_secs, self._execute_step)
+
+def _execute_step(self):
+    # One-shot: cancel and destroy the timer that just fired, otherwise it
+    # keeps firing forever and stacks timers on every step.
+    if self._timer is not None:
+        self._timer.cancel()
+        self.destroy_timer(self._timer)
+        self._timer = None
+
+    if self._step_idx >= len(self._steps):
+        ...
+```
+
+`self._timer = None` is also initialised in `_run_sequence` before the chain
+starts.
+
+Rebuilt: `colcon build --packages-select nav_nodes` (build and install trees
+verified in sync with the source).
+
+---
+
+## Verification
+
+| Check | Result |
+|---|---|
+| `ros2 run nav_nodes arm_controller_node` | Node reaches ready state |
+| `ros2 topic pub --once /arm1/trigger std_msgs/msg/Bool "{data: true}"` | Steps 1–9 execute **exactly once, in order** |
+| Sequence completion | `Sequence DONE` logged; `/arm1/done` published once |
+| `diff` src ↔ build ↔ install trees | All in sync after rebuild |
+
+Full observed run after the fix:
+
+```
+Trigger received → starting pick-and-place
+Step 1/9: HOME  — safe upright
+Step 2/9: OPEN  — gripper open
+Step 3/9: PICK  — reach to box
+Step 4/9: GRIP  — close gripper
+Step 5/9: CARRY — lift box
+Step 6/9: PLACE — swing to bot tray
+Step 7/9: DROP  — open gripper
+Step 8/9: RETRACT — back to carry
+Step 9/9: HOME  — return upright
+Sequence DONE
+```
+
+---
+
+## How to confirm the fix at runtime
+
+1. Launch the sim: `ros2 launch robot_description arm_gazebo.launch.py`
+   (wait for the `arm1` controllers to spawn, ~25 s).
+2. In another terminal:
+   ```bash
+   source install/setup.bash
+   ros2 run nav_nodes arm_controller_node
+   ```
+3. Trigger the sequence:
+   ```bash
+   ros2 topic pub --once /arm1/trigger std_msgs/msg/Bool "{data: true}"
+   ```
+4. The node log should show Steps 1–9 each exactly once, in order, followed
+   by `Sequence DONE`, and the arm should perform one clean pick-and-place.
+
+

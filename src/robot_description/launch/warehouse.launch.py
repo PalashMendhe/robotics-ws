@@ -2,8 +2,7 @@ import os
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import (Command, IfElseSubstitution, LaunchConfiguration,
-                                  PathJoinSubstitution)
+from launch.substitutions import Command, IfElseSubstitution, LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 from ament_index_python.packages import get_package_share_directory
@@ -12,21 +11,23 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     pkg_robot_description = get_package_share_directory('robot_description')
     urdf_file = os.path.join(pkg_robot_description, 'urdf', 'robot.urdf.xacro')
+    arm_file = os.path.join(pkg_robot_description, 'urdf', 'arm.urdf.xacro')
+    world_file = os.path.join(pkg_robot_description, 'worlds', 'large_warehouse.sdf')
 
     use_sim_time = LaunchConfiguration('use_sim_time')
-    world_arg = LaunchConfiguration('world')
     x_arg = LaunchConfiguration('x')
     y_arg = LaunchConfiguration('y')
     z_arg = LaunchConfiguration('z')
     yaw_arg = LaunchConfiguration('yaw')
     headless_arg = LaunchConfiguration('headless')
 
-    # Robot description command
+    # AMR URDF Description
     robot_description_cmd = Command(['xacro ', urdf_file])
     robot_description = ParameterValue(robot_description_cmd, value_type=str)
-
-    # Path to world file
-    world_file = PathJoinSubstitution([pkg_robot_description, 'worlds', world_arg])
+    
+    # Static Arm URDF Description
+    arm_description_cmd = Command(['xacro ', arm_file])
+    arm_description = ParameterValue(arm_description_cmd, value_type=str)
 
     return LaunchDescription([
         DeclareLaunchArgument(
@@ -34,38 +35,34 @@ def generate_launch_description():
             default_value='true',
             description='Use simulation (Gazebo) clock if true'
         ),
-        DeclareLaunchArgument(
-            'world',
-            default_value='multiroom.sdf',
-            description='World file name (inside worlds/) or full path to world file'
-        ),
+        # Default spawn: AMR Home / Charging Pad (facing North toward Station 1)
         DeclareLaunchArgument(
             'x',
-            default_value='2.2',
+            default_value='-4.5',
             description='Initial x position of the robot'
         ),
         DeclareLaunchArgument(
             'y',
-            default_value='0.8',
+            default_value='-4.5',
             description='Initial y position of the robot'
         ),
         DeclareLaunchArgument(
             'z',
-            default_value='0.1',
+            default_value='0.08',
             description='Initial z position of the robot'
         ),
         DeclareLaunchArgument(
             'yaw',
-            default_value='0.0',
+            default_value='0.9',
             description='Initial yaw orientation of the robot'
         ),
         DeclareLaunchArgument(
             'headless',
             default_value='false',
-            description='Run only the gz server (no GUI) — for CI / headless shells'
+            description='Run only the gz server (no GUI)'
         ),
 
-        # Launch Gazebo
+        # 1. Launch Gazebo Harmonic with large_warehouse.sdf
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
                 os.path.join(
@@ -76,16 +73,16 @@ def generate_launch_description():
             launch_arguments={
                 'gz_args': [
                     '-r ', world_file,
-                    # Server-only when headless:=true (keeps GUI runs identical)
                     IfElseSubstitution(
                         headless_arg,
                         if_value=' -s --headless-rendering',
-                        else_value=''),
+                        else_value=''
+                    ),
                 ],
             }.items()
         ),
 
-        # Robot state publisher
+        # 2. Robot State Publisher (publishes robot TF tree)
         Node(
             package='robot_state_publisher',
             executable='robot_state_publisher',
@@ -97,9 +94,9 @@ def generate_launch_description():
             output='screen'
         ),
 
-        # Spawn robot in Gazebo after a delay to ensure Gazebo world is ready
+        # 3. Spawn AMR on the Home Pad
         TimerAction(
-            period=5.0,
+            period=4.0,
             actions=[
                 Node(
                     package='ros_gz_sim',
@@ -107,7 +104,7 @@ def generate_launch_description():
                     arguments=[
                         '-name', 'my_robot',
                         '-string', robot_description_cmd,
-                        '-world', 'multiroom',
+                        '-world', 'large_warehouse',
                         '-x', x_arg,
                         '-y', y_arg,
                         '-z', z_arg,
@@ -117,8 +114,70 @@ def generate_launch_description():
                 ),
             ]
         ),
+        
+        # 3b. Spawn Static Arm 1 at Station 1
+        TimerAction(
+            period=4.5,
+            actions=[
+                Node(
+                    package='ros_gz_sim',
+                    executable='create',
+                    arguments=[
+                        '-name', 'station_1_arm',
+                        '-string', arm_description_cmd,
+                        '-world', 'large_warehouse',
+                        '-x', '-4.684',
+                        '-y', '0.5280',
+                        '-z', '0.0',
+                        '-Y', '3.14159', # Facing +X (North, over the shelf)
+                    ],
+                    output='screen'
+                ),
+            ]
+        ),
+        
+        # 3c. Spawn Static Arm 2 at Station 2
+        TimerAction(
+            period=5.0,
+            actions=[
+                Node(
+                    package='ros_gz_sim',
+                    executable='create',
+                    arguments=[
+                        '-name', 'station_2_arm',
+                        '-string', arm_description_cmd,
+                        '-world', 'large_warehouse',
+                        '-x', '-4.684',
+                        '-y', '1.5280',
+                        '-z', '0.0',
+                        '-Y', '3.14159', # Facing +X (South, over the shelf)
+                    ],
+                    output='screen'
+                ),
+            ]
+        ),
+        # 3d. Spawn Static Arm 3 at Station 3
+        TimerAction(
+            period=5.0,
+            actions=[
+                Node(
+                    package='ros_gz_sim',
+                    executable='create',
+                    arguments=[
+                        '-name', 'station_3_arm',
+                        '-string', arm_description_cmd,
+                        '-world', 'large_warehouse',
+                        '-x', '-4.684',
+                        '-y', '2.5280',
+                        '-z', '0.0',
+                        '-Y', '3.14159', # Facing +X (South, over the shelf)
+                    ],
+                    output='screen'
+                ),
+            ]
+        ),
 
-        # TF Broadcaster from Odometry
+        # 4. TF Broadcaster from Odometry (odom -> base_footprint)
         Node(
             package='nav_nodes',
             executable='broadcaster_node',
@@ -127,7 +186,7 @@ def generate_launch_description():
             output='screen'
         ),
 
-        # ROS-Gazebo bridge for topics
+        # 5. Topic Bridge (Gazebo Sim <-> ROS 2)
         Node(
             package='ros_gz_bridge',
             executable='parameter_bridge',
@@ -145,5 +204,22 @@ def generate_launch_description():
                 '/joint_states@sensor_msgs/msg/JointState[gz.msgs.Model',
             ],
             output='screen'
+        ),
+
+        # 6. ArUco Detector Node (starts once camera streams are live)
+        TimerAction(
+            period=7.0,
+            actions=[
+                Node(
+                    package='nav_nodes',
+                    executable='aruco_detector_node',
+                    name='aruco_detector_node',
+                    output='screen',
+                    parameters=[{
+                        'marker_size': 0.1125,
+                        'dict_id': 0,  # DICT_4X4_50
+                    }],
+                ),
+            ]
         ),
     ])
