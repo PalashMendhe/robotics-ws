@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(robot_description)
+project(robotic_4dof_arm)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -7,12 +7,18 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
-install(DIRECTORY urdf launch config worlds maps
+install(DIRECTORY urdf launch worlds config
   DESTINATION share/${PROJECT_NAME}
+)
+install(PROGRAMS 
+  scripts/pick_and_place.py
+  scripts/world_publisher.py
+  scripts/planning_scene_manager.py
+  DESTINATION lib/${PROJECT_NAME}
 )
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

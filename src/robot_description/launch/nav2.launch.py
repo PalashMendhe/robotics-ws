@@ -17,10 +17,7 @@ def generate_launch_description():
         'nav2_params.yaml'
     )
 
-    # Check for existing map in package (my_map.yaml or warehouse_map.yaml)
-    default_map_file = os.path.join(pkg_robot_desc, 'maps', 'my_map.yaml')
-    if not os.path.exists(default_map_file):
-        default_map_file = os.path.join(pkg_robot_desc, 'maps', 'warehouse_map.yaml')
+    default_map_file = os.path.join(pkg_robot_desc, 'maps', 'large_warehouse.yaml')
 
     nav2_bringup_launch = os.path.join(
         pkg_nav2_bringup,

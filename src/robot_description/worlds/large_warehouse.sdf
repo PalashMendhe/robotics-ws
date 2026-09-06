@@ -173,16 +173,28 @@
       </link>
     </model>
 
-    <!-- Obstacle Boxes at Station 1, 2, 3 (x shifted to -4.00) -->
+    <!-- Delivery Boxes at Station 1, 2, 3 (grounded at floor z=0.055) -->
     <model name="box_obstacle_1">
-      <static>true</static>
-      <pose>-4.20 0.6173 0.03 0 0 0</pose>
+      <static>false</static>
+      <pose>-4.20 0.6173 0.055 0 0 0</pose>
       <link name="link">
+        <inertial>
+          <mass>0.4</mass>
+          <inertia>
+            <ixx>0.000667</ixx>
+            <iyy>0.000667</iyy>
+            <izz>0.000667</izz>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyz>0</iyz>
+          </inertia>
+        </inertial>
         <collision name="collision">
           <geometry>
             <box>
               <size>0.1 0.1 0.1</size>
-            </box>
+           
+ </box>
           </geometry>
         </collision>
         <visual name="visual">
@@ -200,9 +212,20 @@
     </model>
 
     <model name="box_obstacle_2">
-      <static>true</static>
-      <pose>-4.20 1.617 0.03 0 0 0</pose>
+      <static>false</static>
+      <pose>-4.20 1.617 0.055 0 0 0</pose>
       <link name="link">
+        <inertial>
+          <mass>0.4</mass>
+          <inertia>
+            <ixx>0.000667</ixx>
+            <iyy>0.000667</iyy>
+            <izz>0.000667</izz>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyz>0</iyz>
+          </inertia>
+        </inertial>
         <collision name="collision">
           <geometry>
             <box>
@@ -225,9 +248,20 @@
     </model>
 
     <model name="box_obstacle_3">
-      <static>true</static>
-      <pose>-4.20 2.617 0.03 0 0 0</pose>
+      <static>false</static>
+      <pose>-4.20 2.617 0.055 0 0 0</pose>
       <link name="link">
+        <inertial>
+          <mass>0.4</mass>
+          <inertia>
+            <ixx>0.000667</ixx>
+            <iyy>0.000667</iyy>
+            <izz>0.000667</izz>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyz>0</iyz>
+          </inertia>
+        </inertial>
         <collision name="collision">
           <geometry>
             <box>

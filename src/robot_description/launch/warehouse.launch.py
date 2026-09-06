@@ -1,4 +1,9 @@
 import os
+import shutil
+import tempfile
+
+os.environ['GZ_IP'] = '127.0.0.1'
+os.environ['ROS_AUTOMATIC_DISCOVERY_RANGE'] = 'LOCALHOST'
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -8,11 +13,106 @@ from launch_ros.parameter_descriptions import ParameterValue
 from ament_index_python.packages import get_package_share_directory
 
 
+def make_station_arm(arm_urdf, controllers, use_sim_time, ns, name, x, y, z, yaw, spawn_delay=5.0, ctrl_delay=12.0):
+    """
+    Helper — returns (rsp_node, spawn_action, controllers_action) for one station arm.
+    """
+    arm_desc_cmd = Command([
+        'xacro ', arm_urdf,
+        ' controllers_file:=', controllers,
+        ' arm_namespace:=', ns,
+    ])
+    arm_desc = ParameterValue(arm_desc_cmd, value_type=str)
+
+    rsp = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        name='arm_state_publisher',
+        namespace=ns,
+        parameters=[{
+            'robot_description': arm_desc,
+            'use_sim_time': use_sim_time,
+        }],
+        output='screen'
+    )
+
+    spawn = TimerAction(
+        period=spawn_delay,
+        actions=[
+            Node(
+                package='ros_gz_sim',
+                executable='create',
+                arguments=[
+                    '-name', name,
+                    '-string', arm_desc_cmd,
+                    '-world', 'large_warehouse',
+                    '-x', str(x),
+                    '-y', str(y),
+                    '-z', str(z),
+                    '-Y', str(yaw),
+                ],
+                output='screen'
+            ),
+        ]
+    )
+
+    cm = f'/{ns}/controller_manager'
+
+    ctrl = TimerAction(
+        period=ctrl_delay,
+        actions=[
+            Node(
+                package='controller_manager',
+                executable='spawner',
+                arguments=[
+                    'joint_state_broadcaster',
+                    '--controller-manager', cm,
+                    '--param-file', controllers,
+                    '--controller-manager-timeout', '120',
+                    '--controller-ros-args', '--ros-args -p use_sim_time:=true',
+                ],
+                output='screen'
+            ),
+            Node(
+                package='controller_manager',
+                executable='spawner',
+                arguments=[
+                    'arm_controller',
+                    '--controller-manager', cm,
+                    '--param-file', controllers,
+                    '--controller-manager-timeout', '120',
+                    '--controller-ros-args', '--ros-args -p use_sim_time:=true',
+                ],
+                output='screen'
+            ),
+            Node(
+                package='controller_manager',
+                executable='spawner',
+                arguments=[
+                    'gripper_controller',
+                    '--controller-manager', cm,
+                    '--param-file', controllers,
+                    '--controller-manager-timeout', '120',
+                    '--controller-ros-args', '--ros-args -p use_sim_time:=true',
+                ],
+                output='screen'
+            ),
+        ]
+    )
+
+    return rsp, spawn, ctrl
+
+
 def generate_launch_description():
     pkg_robot_description = get_package_share_directory('robot_description')
     urdf_file = os.path.join(pkg_robot_description, 'urdf', 'robot.urdf.xacro')
     arm_file = os.path.join(pkg_robot_description, 'urdf', 'arm.urdf.xacro')
     world_file = os.path.join(pkg_robot_description, 'worlds', 'large_warehouse.sdf')
+
+    # Copy controllers yaml to tempdir to avoid Jazzy controller_manager param parsing bug
+    controllers_src = os.path.join(pkg_robot_description, 'config', 'arm_controllers.yaml')
+    controllers = os.path.join(tempfile.gettempdir(), 'arm_controllers.yaml')
+    shutil.copyfile(controllers_src, controllers)
 
     use_sim_time = LaunchConfiguration('use_sim_time')
     x_arg = LaunchConfiguration('x')
@@ -24,10 +124,27 @@ def generate_launch_description():
     # AMR URDF Description
     robot_description_cmd = Command(['xacro ', urdf_file])
     robot_description = ParameterValue(robot_description_cmd, value_type=str)
-    
-    # Static Arm URDF Description
-    arm_description_cmd = Command(['xacro ', arm_file])
-    arm_description = ParameterValue(arm_description_cmd, value_type=str)
+
+    arm1_rsp, arm1_spawn, arm1_ctrl = make_station_arm(
+        arm_file, controllers, use_sim_time,
+        ns='arm1', name='station_1_arm',
+        x='-4.684', y='0.5280', z='0.03', yaw='3.14159',
+        spawn_delay=5.0, ctrl_delay=6.0
+    )
+
+    arm2_rsp, arm2_spawn, arm2_ctrl = make_station_arm(
+        arm_file, controllers, use_sim_time,
+        ns='arm2', name='station_2_arm',
+        x='-4.684', y='1.5280', z='0.03', yaw='3.14159',
+        spawn_delay=5.5, ctrl_delay=6.5
+    )
+
+    arm3_rsp, arm3_spawn, arm3_ctrl = make_station_arm(
+        arm_file, controllers, use_sim_time,
+        ns='arm3', name='station_3_arm',
+        x='-4.684', y='2.5280', z='0.03', yaw='3.14159',
+        spawn_delay=6.0, ctrl_delay=7.0
+    )
 
     return LaunchDescription([
         DeclareLaunchArgument(
@@ -115,67 +232,16 @@ def generate_launch_description():
             ]
         ),
         
-        # 3b. Spawn Static Arm 1 at Station 1
-        TimerAction(
-            period=4.5,
-            actions=[
-                Node(
-                    package='ros_gz_sim',
-                    executable='create',
-                    arguments=[
-                        '-name', 'station_1_arm',
-                        '-string', arm_description_cmd,
-                        '-world', 'large_warehouse',
-                        '-x', '-4.684',
-                        '-y', '0.5280',
-                        '-z', '0.0',
-                        '-Y', '3.14159', # Facing +X (North, over the shelf)
-                    ],
-                    output='screen'
-                ),
-            ]
-        ),
-        
-        # 3c. Spawn Static Arm 2 at Station 2
-        TimerAction(
-            period=5.0,
-            actions=[
-                Node(
-                    package='ros_gz_sim',
-                    executable='create',
-                    arguments=[
-                        '-name', 'station_2_arm',
-                        '-string', arm_description_cmd,
-                        '-world', 'large_warehouse',
-                        '-x', '-4.684',
-                        '-y', '1.5280',
-                        '-z', '0.0',
-                        '-Y', '3.14159', # Facing +X (South, over the shelf)
-                    ],
-                    output='screen'
-                ),
-            ]
-        ),
-        # 3d. Spawn Static Arm 3 at Station 3
-        TimerAction(
-            period=5.0,
-            actions=[
-                Node(
-                    package='ros_gz_sim',
-                    executable='create',
-                    arguments=[
-                        '-name', 'station_3_arm',
-                        '-string', arm_description_cmd,
-                        '-world', 'large_warehouse',
-                        '-x', '-4.684',
-                        '-y', '2.5280',
-                        '-z', '0.0',
-                        '-Y', '3.14159', # Facing +X (South, over the shelf)
-                    ],
-                    output='screen'
-                ),
-            ]
-        ),
+        # 3b. Station Arms 1, 2, 3: RSPs, Model Spawners, and Controller Spawners
+        arm1_rsp,
+        arm2_rsp,
+        arm3_rsp,
+        arm1_spawn,
+        arm2_spawn,
+        arm3_spawn,
+        arm1_ctrl,
+        arm2_ctrl,
+        arm3_ctrl,
 
         # 4. TF Broadcaster from Odometry (odom -> base_footprint)
         Node(
@@ -204,22 +270,5 @@ def generate_launch_description():
                 '/joint_states@sensor_msgs/msg/JointState[gz.msgs.Model',
             ],
             output='screen'
-        ),
-
-        # 6. ArUco Detector Node (starts once camera streams are live)
-        TimerAction(
-            period=7.0,
-            actions=[
-                Node(
-                    package='nav_nodes',
-                    executable='aruco_detector_node',
-                    name='aruco_detector_node',
-                    output='screen',
-                    parameters=[{
-                        'marker_size': 0.1125,
-                        'dict_id': 0,  # DICT_4X4_50
-                    }],
-                ),
-            ]
         ),
     ])

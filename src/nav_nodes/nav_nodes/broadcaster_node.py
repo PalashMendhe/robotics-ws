@@ -44,8 +44,8 @@ class broadcaster_node(Node):
 
         transform = TransformStamped()
         transform.header.stamp = msg.header.stamp
-        transform.header.frame_id = msg.header.frame_id if msg.header.frame_id else 'odom'
-        transform.child_frame_id = msg.child_frame_id if msg.child_frame_id else 'base_footprint'
+        transform.header.frame_id = 'odom'
+        transform.child_frame_id = 'base_footprint'
         transform.transform.translation.x = msg.pose.pose.position.x
         transform.transform.translation.y = msg.pose.pose.position.y
         transform.transform.translation.z = msg.pose.pose.position.z
