@@ -29,7 +29,7 @@ New:
 - `.github/dependabot.yml` — optional, Actions/docker bumps
 
 Modified:
-- All four `src/*/package.xml` — real license (Apache-2.0, fixes `ament_copyright`), real descriptions, consistent maintainer; add missing `<exec_depend>` entries (`ros_gz_sim`, `xacro`, `nav2_bringup`, `robot_state_publisher`, `joint_state_publisher`, etc.) so `rosdep install` in Docker actually pulls the full sim stack
+- All four `src/*/package.xml` — real license (MIT, matching the repo LICENSE), real descriptions, consistent maintainer; add missing `<exec_depend>` entries (`ros_gz_sim`, `xacro`, `nav2_bringup`, `robot_state_publisher`, `joint_state_publisher`, etc.) so `rosdep install` in Docker actually pulls the full sim stack
 - `broadcaster_node.py` — extract inline stamp check to pure module-level `should_accept_stamp(msg_nanos, last) -> bool`; `odom_callback` calls it (identical semantics)
 - `mission_node.py` — extract dock-override `"x,y,yaw"` parsing to pure `parse_dock_override(s) -> tuple | None`
 - `.gitignore` — add `.ruff_cache/`, `.venv/`, `*.egg-info/`

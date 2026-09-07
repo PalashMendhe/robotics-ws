@@ -20,7 +20,7 @@ def should_accept_stamp(msg_nanos, last_stamp_nanos):
     return msg_nanos > last_stamp_nanos
 
 
-class broadcaster_node(Node):
+class BroadcasterNode(Node):
     def __init__(self):
         super().__init__('broadcaster_node')
         self.get_logger().info('TF broadcaster node started')
@@ -68,7 +68,7 @@ class broadcaster_node(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = broadcaster_node()
+    node = BroadcasterNode()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

@@ -89,7 +89,8 @@ class MissionNode(Node):
                 self.set_parameters([
                     rclpy.Parameter(
                         'use_sim_time', rclpy.Parameter.Type.BOOL, True)])
-        except Exception:
+        except rclpy.exceptions.ParameterNotDeclaredException:
+            # Not declared via --ros-args: keep the default (False).
             pass
         self.declare_parameter('station', 0)   # 0 = random
         self.declare_parameter('dest', 0)      # 0 = random
@@ -183,7 +184,9 @@ class MissionNode(Node):
         try:
             return (self.count_publishers('amcl_pose') > 0 or
                     self.count_publishers('/amcl_pose') > 0)
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
+            # ANY failure (DDS down, node shutting down) means "not alive";
+            # the state machine simply stays in INIT and retries.
             return False
 
     # ── callbacks ─────────────────────────────────────────────────────────────

@@ -141,12 +141,12 @@ def station_ik(x: float, y: float, z: float) -> list:
     if abs(x - (-0.484)) < 0.01 and abs(y - (-0.0893)) < 0.01:
         if abs(z - PICK_GRASP_Z) < 0.01:
             return CANONICAL_STATION_WAYPOINTS['PICK_GRASP']
-        elif abs(z - LIFT_Z) < 0.01:
+        if abs(z - LIFT_Z) < 0.01:
             return CANONICAL_STATION_WAYPOINTS['LIFT']
     elif abs(x - (-0.384)) < 0.01 and abs(y - 0.3000) < 0.01:
         if abs(z - LOWER_Z) < 0.01:
             return CANONICAL_STATION_WAYPOINTS['LOWER']
-        elif abs(z - LIFT_Z) < 0.01:
+        if abs(z - LIFT_Z) < 0.01:
             return CANONICAL_STATION_WAYPOINTS['SWING']
 
     q_init = [-0.04 if x > -0.45 else -0.89, -0.4, 0.4, 0.8, 0.0, 0.0]
@@ -239,6 +239,7 @@ class StationArmNode(Node):
 
         # ── one-shot timer chain state (see bug.md: timers REPEAT) ───────────
         self._timer = None
+        self._steps = []
         self._step_idx = 0
         self._running = False
 

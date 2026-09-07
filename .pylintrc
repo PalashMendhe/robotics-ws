@@ -14,6 +14,12 @@ disable=
     too-few-public-methods,
     duplicate-code,
     fixme,
+    # Import order/layout is the authority of ament_flake8 (google style,
+    # enforced by colcon test) — pylint's grouping rules contradict it.
+    wrong-import-order,
+    wrong-import-position,
+    ungrouped-imports,
+    # mission_node sets DDS env vars before importing rclpy — intentional.
     # ruff is the authority for style; pylint stays on semantics
     line-too-long,
     missing-docstring
@@ -36,6 +42,12 @@ ignored-modules=
     std_srvs,
     tf2_ros,
     trajectory_msgs
+
+[DESIGN]
+# ROS nodes legitimately accumulate many pubs/subs/clients/params.
+max-attributes=20
+# The mission state machine dispatcher (_poll) branches per phase.
+max-branches=20
 
 [FORMAT]
 max-line-length=99
