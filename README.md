@@ -1,6 +1,6 @@
 # Autonomous Mobile Robot (AMR) & Multi-Station Warehouse Logistics System
 
-An end-to-end, production-grade autonomous warehouse logistics solution built with **ROS 2 Jazzy** and **Gazebo Harmonic**. The system coordinates an Autonomous Mobile Robot (AMR) with multiple 6-DOF robotic station manipulators to autonomously fulfill random pick-and-deliver missions across a multi-aisle industrial warehouse.
+An end-to-end, autonomous warehouse logistics solution built with **ROS 2 Jazzy** and **Gazebo Harmonic**. The system coordinates an Autonomous Mobile Robot (AMR) with multiple 6-DOF robotic station manipulators to autonomously fulfill random pick-and-deliver missions across a multi-aisle industrial warehouse.
 
 ---
 
