@@ -174,3 +174,45 @@ The system design reflects key technical decisions and solutions derived from ri
    - Warehouse delivery parcels (`box_obstacle_1/2/3`) are configured with `<static>false</static>`, explicit physical mass ($0.4\text{ kg}$), and realistic inertial tensors, enabling natural contact dynamics, grasp compliance, and physical tray transfer.
 10. **MoveIt 2 Allowed Collision Matrix (ACM) Exemption Tuning**:
     - Avoided false planning aborts by tuning ACM collision disable entries in `arm.srdf` for grounded pedestal links and configuring dynamic touch links in `planning_scene_manager.py`.\n
+
+---
+
+## Testing, Docker & CI
+
+### Tests (headless, no simulator required)
+
+```bash
+# Fast suite: pure-logic units, geometry-vs-world drift guard, config checks
+python3 -m pytest src/nav_nodes/test/ -v
+
+# Full ament suite (requires sourced ROS 2 Jazzy)
+colcon build --symlink-install --packages-select nav_nodes
+colcon test --packages-select nav_nodes && colcon test-result --verbose
+```
+
+Test layers (fast → slow):
+1. **Pure-logic units** — quaternion helper, dock-override parsing, TF stamp-monotonicity policy, mission state machine (retry/timeout/abort transitions) with stubbed action/service clients.
+2. **Geometry-vs-world consistency** — parses `large_warehouse.sdf` and `warehouse.launch.py` and asserts the hardcoded constants in `station_arm_node.py` / `mission_node.py` still match the simulation within 1 mm. If you move a parcel, arm, or marker in the world, update the Python constants — CI will fail otherwise.
+3. **Config validation** — `nav2_params.yaml` completeness + AMCL initial pose vs spawn pose, map YAML/PGM consistency, xacro expansion.
+4. **ament lint + IK checks** — flake8/pep257/`test_station_ik.py` via `colcon test`.
+
+### Docker
+
+```bash
+docker build --target dev -t robotics-ws:dev .
+docker run -it --rm --net=host --ipc=host robotics-ws:dev   # sourced shell
+# or:
+docker compose run --rm dev
+docker compose up sim                                       # headless sim stack
+```
+
+The image is multi-stage: a cached rosdep dependency layer, a colcon build layer, and a `dev` target with the lint toolchain.
+
+### CI (GitHub Actions)
+
+`.github/workflows/ci.yml` runs on every push/PR to `master`:
+- **lint** — ruff + pylint
+- **test** — `colcon build/test` for `nav_nodes` + the headless pytest suite in a `ros:jazzy-ros-base` container (no Gazebo)
+- **docker** — builds the dev image as a full compile check of all packages
+
+Local linting: `ruff check src/ && pylint --rcfile=.pylintrc src/nav_nodes/nav_nodes` (or install pre-commit: `pip install pre-commit && pre-commit install`).

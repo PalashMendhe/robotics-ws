@@ -3,9 +3,9 @@
 <package format="3">
   <name>nav_nodes</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="palashmendhe777@gmail.com">jade</maintainer>
-  <license>TODO: License declaration</license>
+  <description>High-level autonomy: docking mission state machine, station arm pick-and-place (analytic IK), TF odometry broadcaster.</description>
+  <maintainer email="palashmendhe777@gmail.com">PalashMendhe</maintainer>
+  <license>MIT</license>
 
   <depend>rclpy</depend>
   <depend>nav_msgs</depend>

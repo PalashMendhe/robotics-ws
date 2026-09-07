@@ -27,18 +27,19 @@ def generate_launch_description():
 
     # Load descriptions and configurations
     robot_description = xacro.process_file(urdf_path).toxml()
-    robot_description_semantic = open(srdf_path).read()
+    with open(srdf_path, encoding='utf-8') as f:
+        robot_description_semantic = f.read()
 
-    with open(kinematics_yaml, 'r') as f:
+    with open(kinematics_yaml) as f:
         kinematics = yaml.safe_load(f)
 
-    with open(ompl_yaml, 'r') as f:
+    with open(ompl_yaml) as f:
         ompl_config = yaml.safe_load(f)
 
-    with open(controllers_yaml, 'r') as f:
+    with open(controllers_yaml) as f:
         controllers = yaml.safe_load(f)
 
-    with open(joint_limits_yaml, 'r') as f:
+    with open(joint_limits_yaml) as f:
         joint_limits = yaml.safe_load(f)
 
     # Planning pipeline dictionary

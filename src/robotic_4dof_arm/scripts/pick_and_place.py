@@ -5,7 +5,7 @@ import time
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
-from geometry_msgs.msg import Pose, PoseStamped, Point, Quaternion
+from geometry_msgs.msg import Pose
 from shape_msgs.msg import SolidPrimitive
 from builtin_interfaces.msg import Duration
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
@@ -65,10 +65,10 @@ class PickAndPlace(Node):
         self._gripper_client.wait_for_server()
         self.get_logger().info('Action servers connected successfully!')
 
-    def move_to_pose(self, x: float, y: float, z: float, qx: float = 0.0, qy: float = 0.7071, qz: float = 0.0, qw: float = 0.7071, link_name: str = 'gripper_tcp') -> bool:
-        """
-        Plans and executes a collision-free path to the target Cartesian pose using MoveIt 2.
-        """
+    def move_to_pose(self, x: float, y: float, z: float, qx: float = 0.0,
+                     qy: float = 0.7071, qz: float = 0.0, qw: float = 0.7071,
+                     link_name: str = 'gripper_tcp') -> bool:
+        """Plan and execute a collision-free path to the pose via MoveIt."""
         self.get_logger().info(f'Planning collision-aware path to: ({x:.2f}, {y:.2f}, {z:.2f})')
 
         goal = MoveGroup.Goal()
@@ -153,13 +153,12 @@ class PickAndPlace(Node):
             time.sleep(0.5)
             return True
         else:
-            self.get_logger().error(f'MoveIt execution failed with error code: {result.error_code.val}')
+            self.get_logger().error(
+                f'MoveIt execution failed with error code: {result.error_code.val}')
             return False
 
     def move_to_joints(self, joint_positions: list) -> bool:
-        """
-        Plans and executes a collision-free motion to target joint positions using MoveIt 2.
-        """
+        """Plan and execute a collision-free motion to the target joints."""
         self.get_logger().info(f'Planning collision-aware path to joints: {joint_positions}')
 
         goal = MoveGroup.Goal()
@@ -174,7 +173,7 @@ class PickAndPlace(Node):
         goal.request.start_state.is_diff = True
 
         constraints = Constraints()
-        for name, pos in zip(self.joint_names, joint_positions):
+        for name, pos in zip(self.joint_names, joint_positions, strict=False):
             jc = JointConstraint()
             jc.joint_name = name
             jc.position = float(pos)
@@ -206,15 +205,14 @@ class PickAndPlace(Node):
             return False
 
     def move_gripper(self, positions: list, duration_sec: float = 1.5):
-        """
-        Commands the gripper controller to open or close prongs.
-        """
+        """Command the gripper controller to open or close the prongs."""
         self.get_logger().info(f'Moving gripper to prongs: {positions}')
         traj = JointTrajectory()
         traj.joint_names = self.gripper_joint_names
         point = JointTrajectoryPoint()
         point.positions = [float(p) for p in positions]
-        point.time_from_start = Duration(sec=int(duration_sec), nanosec=int((duration_sec % 1) * 1e9))
+        point.time_from_start = Duration(
+            sec=int(duration_sec), nanosec=int((duration_sec % 1) * 1e9))
         traj.points = [point]
 
         goal = FollowJointTrajectory.Goal()
@@ -230,19 +228,21 @@ class PickAndPlace(Node):
         time.sleep(0.5)
 
     def run(self):
-        """
-        Executes the complete collision-aware pick and place cycle.
-        """
+        """Execute the complete collision-aware pick and place cycle."""
         self.get_logger().info('========================================================')
         self.get_logger().info('   Starting Autonomous Collision-Aware Pick and Place   ')
         self.get_logger().info('========================================================')
 
         # Canonical Station Waypoints for floor parcel pick and AMR tray place
         # Derived from exact URDF forward kinematics with elbow-up configuration:
-        # PICK_GRASP: [-0.0409, -0.3555, -0.2051, 0.2248, 0.0, 0.0]  -> reaches (-0.484, -0.0893, 0.070)
-        # LIFT:       [-0.0409, -0.2951, 0.7249, 1.2153, 0.0, 0.0]   -> elevated vertically to z=0.450 (193 mm above AMR)
-        # SWING:      [-0.8888, -0.2809, 0.7059, 1.2105, 0.0, 0.0]   -> rotated over AMR tray at high clearance z=0.450
-        # LOWER:      [-0.8888, -0.2030, 0.0846, 0.6671, 0.0, 0.0]   -> tray floor (-0.384, 0.300, 0.250)
+        # PICK_GRASP: [-0.0409, -0.3555, -0.2051, 0.2248, 0.0, 0.0]
+        #   -> reaches (-0.484, -0.0893, 0.070)
+        # LIFT:       [-0.0409, -0.2951, 0.7249, 1.2153, 0.0, 0.0]
+        #   -> elevated vertically to z=0.450 (193 mm above AMR)
+        # SWING:      [-0.8888, -0.2809, 0.7059, 1.2105, 0.0, 0.0]
+        #   -> rotated over AMR tray at high clearance z=0.450
+        # LOWER:      [-0.8888, -0.2030, 0.0846, 0.6671, 0.0, 0.0]
+        #   -> tray floor (-0.384, 0.300, 0.250)
         # HOME:       [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
         # Gripper: OPEN = [0.06, -0.06], CLOSED = [0.018, -0.018]
 
@@ -298,11 +298,13 @@ class PickAndPlace(Node):
         time.sleep(0.5)
 
         # 5b. Lift Box straight up above AMR height (+193 mm clearance)
-        self.get_logger().info('\n[5b/8] Lifting Parcel Vertically Above Bot Height (+193 mm clearance)...')
+        self.get_logger().info(
+            '\n[5b/8] Lifting Parcel Vertically Above Bot Height...')
         self.move_to_joints(WAYPOINT_LIFT)
 
         # 6. Swing & Rotate toward AMR at high clearance altitude
-        self.get_logger().info('\n[6/8] Rotating Arm Base toward AMR Tray at High Clearance Altitude...')
+        self.get_logger().info(
+            '\n[6/8] Rotating Arm Base toward AMR Tray at Altitude...')
         self.move_to_joints(WAYPOINT_SWING)
 
         # 7. Lower onto AMR tray (x=-0.384, y=0.300, z=0.250)

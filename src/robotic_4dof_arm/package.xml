@@ -3,9 +3,9 @@
 <package format="3">
   <name>robotic_4dof_arm</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>4-DOF arm: URDF, Gazebo launch, pick-and-place and planning-scene scripts.</description>
   <maintainer email="palashmendhe777@gmail.com">PalashMendhe</maintainer>
-  <license>TODO: License declaration</license>
+  <license>MIT</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

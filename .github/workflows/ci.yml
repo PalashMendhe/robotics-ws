@@ -1,0 +1,99 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  # ------------------------------------------------------------------ lint --
+  lint:
+    name: Lint (ruff + pylint)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install lint toolchain
+        run: pip install -r requirements-lint.txt
+
+      - name: Ruff
+        run: ruff check src/
+
+      - name: Pylint (nav_nodes sources)
+        run: pylint --rcfile=.pylintrc src/nav_nodes/nav_nodes
+
+  # ------------------------------------------------------------------ test --
+  test:
+    name: Unit tests (headless, no Gazebo)
+    runs-on: ubuntu-24.04
+    container: ros:jazzy-ros-base
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build/test tooling
+        run: |
+          apt-get update && apt-get install -y --no-install-recommends \
+            python3-colcon-common-extensions \
+            python3-pytest \
+            python3-rosdep
+          rosdep init || true
+          rosdep update
+          rosdep install --from-paths src --ignore-src -y --rosdistro jazzy
+
+      - name: Build nav_nodes
+        shell: bash
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          colcon build --symlink-install --packages-select nav_nodes
+
+      - name: colcon test (ament lint + geometry checks)
+        shell: bash
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          source install/setup.bash
+          colcon test --packages-select nav_nodes
+          colcon test-result --verbose
+
+      - name: Headless pytest suite
+        shell: bash
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          python3 -m pytest src/nav_nodes/test/ -v
+
+  # ---------------------------------------------------------------- docker --
+  docker:
+    name: Docker build (dev image)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build dev image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: dev
+          push: false
+          tags: robotics-ws:dev
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ----------------------------------------------------------------- smoke --
+  # FUTURE (opt-in only): a headless Gazebo smoke test that launches the
+  # world + nodes and asserts the mission reaches DONE. Deliberately not on
+  # PRs — sim runs are slow and can be flaky. Enable via workflow_dispatch:
+  #
+  # sim-smoke:
+  #   if: github.event_name == 'workflow_dispatch'
+  #   runs-on: ubuntu-24.04
+  #   container: robotics-ws:dev   # built by the docker job
+  #   steps:
+  #     - run: |
+  #         ros2 launch robot_description mission.launch.py headless:=true &
+  #         timeout 300 ros2 topic echo /mission/status --once --field data

@@ -23,10 +23,10 @@ setup(
         ],
     },
     entry_points={
-    'console_scripts': [
-        'broadcaster_node    = nav_nodes.broadcaster_node:main',
-        'station_arm_node    = nav_nodes.station_arm_node:main',
-        'docking_mission     = nav_nodes.mission_node:main',
-    ],
+        'console_scripts': [
+            'broadcaster_node    = nav_nodes.broadcaster_node:main',
+            'station_arm_node    = nav_nodes.station_arm_node:main',
+            'docking_mission     = nav_nodes.mission_node:main',
+        ],
     },
 )

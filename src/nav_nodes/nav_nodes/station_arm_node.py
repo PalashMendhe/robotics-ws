@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """
-station_arm_node.py
-───────────────────
-Per-station pick-and-place service node for the large_warehouse world.
+station_arm_node.py: per-station pick-and-place service node.
 
-Run ONE instance per station (parameters station:=1|2|3, arm_ns:=arm<N>).
+World: large_warehouse. Run ONE instance per station (parameters
+station:=1|2|3, arm_ns:=arm<N>).
 Serves:
 
     /station_<N>/dock_arm    (std_srvs/srv/Trigger)
@@ -75,8 +74,8 @@ DOCK_DY = -0.3000       # dock y offset from ARM y — clears floor parcel later
 # AMR tray floor top at z=0.192; funnel rim at z=0.237.
 PICK_PREP_Z = 0.45        # TCP world 0.48 (kept for test imports)
 PICK_GRASP_Z = 0.07       # TCP world 0.10 — grip floor parcel at upper third
-LIFT_Z = 0.45             # TCP world 0.48 — box bottom at z=0.43 (193 mm above AMR chassis)
-LOWER_Z = 0.25            # TCP world 0.28 — elevated place height, box hangs in funnel and releases cleanly onto tray floor
+LIFT_Z = 0.45             # TCP world 0.48 — box bottom at z=0.43 (+193 mm)
+LOWER_Z = 0.25            # TCP world 0.28 — box releases onto tray floor
 
 # Safe upright parked stance (all joints zero per user configuration)
 HOME = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
@@ -85,10 +84,14 @@ HOME = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 # elbow-up configuration keeping all joints within [-3.14, 3.14] and links
 # elevated well above the floor at all times):
 #
-# PICK_GRASP : TCP world z=0.10, directly over floor parcel [-4.20, 0.6173, 0.10], elbow safe at z=0.478
-# LIFT       : lifts parcel straight up to z=0.48, box bottom at z=0.43 (+193 mm above AMR top rim)
-# SWING      : rotates base to -0.8888 at high clearance z=0.48, positioning box directly over AMR tray
-# LOWER      : forearm lowered vertically into AMR tray [-4.30, 0.228, 0.28], gripper pointing straight DOWN [0, 0, -1]
+# PICK_GRASP : TCP world z=0.10, directly over floor parcel
+#              [-4.20, 0.6173, 0.10], elbow safe at z=0.478
+# LIFT       : lifts parcel straight up to z=0.48, box bottom at z=0.43
+#              (+193 mm above AMR top rim)
+# SWING      : rotates base to -0.8888 at high clearance z=0.48,
+#              positioning box directly over AMR tray
+# LOWER      : forearm lowered vertically into AMR tray
+#              [-4.30, 0.228, 0.28], gripper pointing straight DOWN
 CANONICAL_STATION_WAYPOINTS = {
     'PICK_GRASP': [-0.0409, -0.3555, -0.2051, 0.2248, 0.0, 0.0],
     'LIFT':       [-0.0409, -0.2951,  0.7249, 1.2153, 0.0, 0.0],
@@ -185,14 +188,22 @@ def compute_station_waypoints(station: int) -> list:
     tx, ty = g['place_local']
 
     return [
-        ('OPEN       — gripper open',      'gripper',  STATION_GRIPPER_OPEN,                       1.0),
-        ('PICK_GRASP — reach to parcel',   'arm',      station_ik(lx, ly, PICK_GRASP_Z),           2.5),
-        ('GRIP       — close on parcel',   'gripper',  GRIPPER_CLOSED_STATION,                     1.5),
-        ('LIFT       — lift above AMR',    'arm',      CANONICAL_STATION_WAYPOINTS['LIFT'],        2.0),
-        ('SWING      — rotate to AMR',     'arm',      CANONICAL_STATION_WAYPOINTS['SWING'],       2.5),
-        ('LOWER      — lower onto tray',   'arm',      station_ik(tx, ty, LOWER_Z),                2.0),
-        ('RELEASE    — open gripper',      'gripper',  STATION_GRIPPER_OPEN,                       1.0),
+        ('OPEN       — gripper open',
+         'gripper', STATION_GRIPPER_OPEN, 1.0),
+        ('PICK_GRASP — reach to parcel',
+         'arm', station_ik(lx, ly, PICK_GRASP_Z), 2.5),
+        ('GRIP       — close on parcel',
+         'gripper', GRIPPER_CLOSED_STATION, 1.5),
+        ('LIFT       — lift above AMR',
+         'arm', CANONICAL_STATION_WAYPOINTS['LIFT'], 2.0),
+        ('SWING      — rotate to AMR',
+         'arm', CANONICAL_STATION_WAYPOINTS['SWING'], 2.5),
+        ('LOWER      — lower onto tray',
+         'arm', station_ik(tx, ty, LOWER_Z), 2.0),
+        ('RELEASE    — open gripper',
+         'gripper', STATION_GRIPPER_OPEN, 1.0),
     ]
+
 
 class StationArmNode(Node):
 
@@ -331,5 +342,3 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-
-

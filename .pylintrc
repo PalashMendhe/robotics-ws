@@ -1,0 +1,45 @@
+[MASTER]
+# ROS 2 message/service Python modules only resolve inside a sourced
+# environment; CI and local shells may differ, so import errors are the
+# linter's problem, not the code's (ruff F401/colcon cover imports).
+ignore-paths=
+    build,
+    install,
+    log
+
+[MESSAGES CONTROL]
+disable=
+    import-error,
+    no-member,
+    too-few-public-methods,
+    duplicate-code,
+    fixme,
+    # ruff is the authority for style; pylint stays on semantics
+    line-too-long,
+    missing-docstring
+
+[BASIC]
+# ROS naming: nodes/classes often use snake_case class names
+good-names=i,j,k,n,x,y,z,q,rc,cb,msg,tb,_
+
+[TYPECHECK]
+# ROS message classes are generated at build time; pylint cannot introspect
+ignored-modules=
+    rclpy,
+    action_msgs,
+    builtin_interfaces,
+    geometry_msgs,
+    nav2_msgs,
+    nav_msgs,
+    ros_gz_interfaces,
+    std_msgs,
+    std_srvs,
+    tf2_ros,
+    trajectory_msgs
+
+[FORMAT]
+max-line-length=99
+
+[REPORTS]
+score=no
+output-format=colorized

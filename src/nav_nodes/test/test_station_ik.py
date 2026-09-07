@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Offline sanity checks for the large_warehouse station pick-and-place
-geometry (no simulator needed):
+Offline sanity checks for the large_warehouse station pick-and-place.
 
+No simulator is needed. Checks:
   1. every IK waypoint solves and lies inside the comfortable arm envelope
      (0.30 m < radial reach < 0.80 m of the 0.817 m max);
   2. every arm joint stays a safe margin off the +/-pi limits (the grasp
@@ -26,9 +26,17 @@ sys.path.insert(
     0, os.path.join(os.path.dirname(__file__), '..'))
 
 from nav_nodes.station_arm_node import (  # noqa: E402
-    ARM_X, ARM_Y0, compute_station_waypoints, DOCK_DY, DOCK_X,
-    PARCEL_Y0, PICK_GRASP_Z, PICK_PREP_Z,
-    STATION_DOCK_POSES, station_geometry)
+    ARM_X,
+    ARM_Y0,
+    compute_station_waypoints,
+    DOCK_DY,
+    DOCK_X,
+    PARCEL_Y0,
+    PICK_GRASP_Z,
+    PICK_PREP_Z,
+    STATION_DOCK_POSES,
+    station_geometry,
+)
 
 MAX_REACH = 0.80          # arm max 0.817 m — keep a margin
 MIN_REACH = 0.30          # avoid fully-folded near-singular grasps
@@ -47,7 +55,7 @@ def _reach(x, y):
 
 def test_waypoints_within_reach():
     for station in (1, 2, 3):
-        for label, kind, positions, secs in compute_station_waypoints(station):
+        for label, kind, positions, _secs in compute_station_waypoints(station):
             if kind != 'arm' or label.startswith('HOME'):
                 continue
             # positions are IK solutions; verify joint limits instead of
@@ -61,13 +69,14 @@ def test_waypoints_within_reach():
 
 def test_waypoints_not_clamped():
     """
-    _ik() clamps acos() when the TCP target is beyond max reach - the arm
-    then points at the target with a fully straight elbow (theta3 ≈ 0) and
-    never actually arrives. Every working waypoint must have a real elbow
-    bend (> 0.1 rad).
+    The _ik() solver clamps acos() when the TCP target is beyond reach.
+
+    The arm then points at the target with a fully straight elbow
+    (theta3 ≈ 0) and never actually arrives. Every working waypoint must
+    have a real elbow bend (> 0.1 rad).
     """
     for station in (1, 2, 3):
-        for label, kind, positions, secs in compute_station_waypoints(station):
+        for label, kind, positions, _secs in compute_station_waypoints(station):
             if kind != 'arm' or label.startswith('HOME'):
                 continue
             elbow = positions[2]
@@ -105,7 +114,8 @@ def test_dock_pose_clears_parcel():
 
 
 def test_gripper_body_clears_parcel():
-    """The gripper body must clear the parcel top during the grasp descend.
+    """
+    The gripper body must clear the parcel top during the grasp descend.
 
     The original config (PICK_GRASP_Z = -0.24) put the gripper body bottom
     at z = 0.395 - 15 mm BELOW the parcel top (z = 0.41). The body collided
@@ -138,8 +148,8 @@ def test_dock_poses_single_source_of_truth():
         assert STATION_DOCK_POSES[station] == (
             g['dock_xy'][0], g['dock_xy'][1], g['dock_yaw'])
     # Station spacing sanity vs. the world file.
-    assert ARM_Y0 + 2.0 == station_geometry(3)['arm_xy'][1]
-    assert PARCEL_Y0 + 2.0 == station_geometry(3)['parcel_xy'][1]
+    assert station_geometry(3)['arm_xy'][1] == ARM_Y0 + 2.0
+    assert station_geometry(3)['parcel_xy'][1] == PARCEL_Y0 + 2.0
     assert abs(DOCK_X - (ARM_X + 0.384)) < 1e-4
     assert DOCK_DY < 0.0  # lateral offset must clear the parcel in -Y
 
@@ -149,7 +159,7 @@ def test_lift_and_swing_clearance_above_amr():
     AMR_TOP_RIM_Z = 0.237  # top of AMR funnel lip
     for station in (1, 2, 3):
         wps = compute_station_waypoints(station)
-        for label, kind, positions, secs in wps:
+        for label, _kind, _positions, _secs in wps:
             if 'LIFT' in label or 'SWING' in label:
                 # Local Z of LIFT/SWING is 0.450 -> world TCP is 0.03 + 0.45 = 0.48 m
                 # Bottom of 0.10 m parcel is at least TCP z - 0.05 m = 0.43 m

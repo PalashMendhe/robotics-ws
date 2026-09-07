@@ -1,0 +1,13 @@
+build
+install
+log
+.git
+.github
+.vscode
+__pycache__
+*.pyc
+.pytest_cache
+.ruff_cache
+.venv
+*.egg-info
+implementation_plan.md

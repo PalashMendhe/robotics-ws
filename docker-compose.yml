@@ -1,0 +1,34 @@
+# Convenience runners for the robotics-ws workspace. Not used by CI.
+#
+#   docker compose run --rm dev          # interactive shell with ROS sourced
+#   docker compose up sim                # headless-capable full sim stack
+services:
+  dev:
+    image: robotics-ws:dev
+    build:
+      context: .
+      target: dev
+    environment:
+      - DISPLAY=${DISPLAY:-}
+      - GZ_IP=127.0.0.1
+      - ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST
+    network_mode: host
+    ipc: host
+    volumes:
+      - ./src:/ws/src:rw
+    command: bash
+
+  sim:
+    image: robotics-ws:dev
+    build:
+      context: .
+      target: dev
+    environment:
+      - DISPLAY=${DISPLAY:-}
+      - GZ_IP=127.0.0.1
+      - ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST
+    network_mode: host
+    ipc: host
+    # Headless by default: pass headless:=false to open the Gazebo GUI.
+    command: >
+      ros2 launch robot_description mission.launch.py headless:=true

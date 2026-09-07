@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 """
-mission_node.py — docking_mission
-─────────────────────────────────
-Random-station docking + Nav2 delivery orchestrator for large_warehouse.
+docking_mission: random-station docking + Nav2 delivery orchestrator.
 
-Run with:
+World: large_warehouse. Run with:
     ros2 run nav_nodes docking_mission
     ros2 run nav_nodes docking_mission --ros-args -p station:=2 -p dest:=1
 
@@ -29,24 +27,23 @@ per leg, one dock-cue retry, then abort with /mission/status.
 Dependencies: rclpy, std_msgs, std_srvs, nav2_msgs, geometry_msgs, action_msgs
 """
 
+import math
 import os
+import random
+
 os.environ.setdefault('ROS_AUTOMATIC_DISCOVERY_RANGE', 'LOCALHOST')
 os.environ.setdefault('GZ_IP', '127.0.0.1')
 
-import math
-import random
-
-import rclpy
-from action_msgs.msg import GoalStatus
-from geometry_msgs.msg import PoseStamped
-from nav2_msgs.action import NavigateToPose
-from rclpy.action import ActionClient
-from rclpy.node import Node
-from rclpy.qos import DurabilityPolicy, QoSProfile
-from std_msgs.msg import Bool, String
-from std_srvs.srv import Trigger
-
-from nav_nodes.station_arm_node import STATION_DOCK_POSES
+from action_msgs.msg import GoalStatus  # noqa: E402
+from geometry_msgs.msg import PoseStamped  # noqa: E402
+from nav2_msgs.action import NavigateToPose  # noqa: E402
+from nav_nodes.station_arm_node import STATION_DOCK_POSES  # noqa: E402
+import rclpy  # noqa: E402
+from rclpy.action import ActionClient  # noqa: E402
+from rclpy.node import Node  # noqa: E402
+from rclpy.qos import DurabilityPolicy, QoSProfile  # noqa: E402
+from std_msgs.msg import Bool, String  # noqa: E402
+from std_srvs.srv import Trigger  # noqa: E402
 
 # Destination markers in large_warehouse.sdf (world/map frame).
 DESTINATIONS = {1: (4.4586, 4.3795, 0.0), 2: (4.4590, -0.9218, 0.0)}
@@ -64,6 +61,23 @@ def _yaw_to_quat(yaw):
     return (0.0, 0.0, math.sin(yaw / 2.0), math.cos(yaw / 2.0))
 
 
+def parse_dock_override(override):
+    """
+    Parse a 'x,y,yaw' dock-override string into (x, y, yaw) floats.
+
+    Returns None when the string is empty or malformed. Pure function so
+    the parsing policy is unit-testable without a live node.
+    """
+    override = str(override).strip()
+    if not override:
+        return None
+    try:
+        x, y, yaw = (float(v) for v in override.split(','))
+        return (x, y, yaw)
+    except ValueError:
+        return None
+
+
 class MissionNode(Node):
 
     def __init__(self):
@@ -72,7 +86,9 @@ class MissionNode(Node):
         # ── parameters ────────────────────────────────────────────────────────
         try:
             if not self.get_parameter('use_sim_time').value:
-                self.set_parameters([rclpy.Parameter('use_sim_time', rclpy.Parameter.Type.BOOL, True)])
+                self.set_parameters([
+                    rclpy.Parameter(
+                        'use_sim_time', rclpy.Parameter.Type.BOOL, True)])
         except Exception:
             pass
         self.declare_parameter('station', 0)   # 0 = random
@@ -90,16 +106,15 @@ class MissionNode(Node):
         self.dock_poses = dict(STATION_DOCK_POSES)
         for n in (1, 2, 3):
             override = str(self.get_parameter(f'station_{n}_dock').value)
-            if override:
-                try:
-                    x, y, yaw = (float(v) for v in override.split(','))
-                    self.dock_poses[n] = (x, y, yaw)
-                    self.get_logger().warn(f'station_{n}_dock overridden to '
-                                           f'({x}, {y}, {yaw})')
-                except ValueError:
-                    self.get_logger().error(
-                        f'Bad station_{n}_dock "{override}" — ignored '
-                        '(expected "x,y,yaw")')
+            parsed = parse_dock_override(override)
+            if parsed is not None:
+                self.dock_poses[n] = parsed
+                self.get_logger().warn(
+                    f'station_{n}_dock overridden to {parsed}')
+            elif override.strip():
+                self.get_logger().error(
+                    f'Bad station_{n}_dock "{override}" — ignored '
+                    '(expected "x,y,yaw")')
 
         # ── interfaces ────────────────────────────────────────────────────────
         self._nav_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
@@ -131,10 +146,10 @@ class MissionNode(Node):
             f'{DESTINATIONS[self.dest]}')
         self._timer = self.create_timer(NAV_POLL_PERIOD, self._poll)
 
-
     # ── helpers ───────────────────────────────────────────────────────────────
     def _publish_status(self, text):
-        msg = String(); msg.data = text
+        msg = String()
+        msg.data = text
         self._status_pub.publish(msg)
         self.get_logger().info(f'[{_PHASE_NAMES[self.phase]}] {text}')
 
@@ -294,4 +309,3 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-

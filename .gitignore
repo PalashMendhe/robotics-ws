@@ -6,4 +6,9 @@ __pycache__/
 .pytest_cache/
 compile_commands.json
 *.log
+.ruff_cache/
+.pylintrc-results/
+.venv/
+*.egg-info/
 .vscode/
+.DS_Store

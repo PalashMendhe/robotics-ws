@@ -12,7 +12,7 @@ from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
     """
-    Full bringup for the random-station docking + delivery mission:
+    Full bringup for the random-station docking and delivery mission.
 
       1. warehouse.launch.py   — Gazebo (large_warehouse), AMR, 3 station
                                  arms (namespaced ros2_control), TF, bridge

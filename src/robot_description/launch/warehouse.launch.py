@@ -13,10 +13,9 @@ from launch_ros.parameter_descriptions import ParameterValue
 from ament_index_python.packages import get_package_share_directory
 
 
-def make_station_arm(arm_urdf, controllers, use_sim_time, ns, name, x, y, z, yaw, spawn_delay=5.0, ctrl_delay=12.0):
-    """
-    Helper — returns (rsp_node, spawn_action, controllers_action) for one station arm.
-    """
+def make_station_arm(arm_urdf, controllers, use_sim_time, ns, name, x, y, z,
+                     yaw, spawn_delay=5.0, ctrl_delay=12.0):
+    """Return (rsp_node, spawn_action, controllers_action) for one arm."""
     arm_desc_cmd = Command([
         'xacro ', arm_urdf,
         ' controllers_file:=', controllers,
@@ -231,7 +230,7 @@ def generate_launch_description():
                 ),
             ]
         ),
-        
+
         # 3b. Station Arms 1, 2, 3: RSPs, Model Spawners, and Controller Spawners
         arm1_rsp,
         arm2_rsp,

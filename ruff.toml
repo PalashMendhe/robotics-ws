@@ -1,0 +1,36 @@
+# Ruff configuration for robotics-ws
+# Aligned with the ament lint defaults (max line length 99, pep257 docstring
+# convention) so `colcon test` lint tests and `ruff check` agree.
+
+target-version = "py312"
+line-length = 99
+extend-exclude = ["build", "install", "log"]
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+    "D",   # docstrings (pydocstyle), pep257 convention below
+]
+# NOTE: "I" (import sorting) is intentionally omitted — ament_flake8 already
+# enforces import order with the flake8-import-order *google* style, which
+# conflicts with isort's grouping, and `colcon test` is the authority.
+ignore = [
+    "D203",  # one-blank-line-before-class (conflicts with pep257 D211)
+    "D213",  # multi-line-summary-second-line (conflicts with pep257 D212)
+    "E402",  # module import not at top: mission_node sets DDS env vars first
+    # ament_pep257 does not enforce the "missing docstring" group either —
+    # ROS node/entry-point boilerplate would otherwise need ~60 stubs.
+    "D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107",
+]
+
+[lint.pydocstyle]
+convention = "pep257"
+
+[lint.per-file-ignores]
+# Launch files keep the env-var-then-import ordering deliberately.
+"src/robot_description/launch/*.py" = ["E402"]

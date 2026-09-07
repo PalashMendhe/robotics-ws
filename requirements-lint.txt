@@ -1,0 +1,3 @@
+# Dev/CI lint toolchain (see .github/workflows/ci.yml and .pre-commit-config.yaml)
+ruff==0.8.4
+pylint==3.3.2

@@ -9,11 +9,7 @@ from moveit_msgs.msg import CollisionObject, AttachedCollisionObject, PlanningSc
 
 class PlanningSceneManager:
     def __init__(self, node: Node = None):
-        """
-        Allows PlanningSceneManager to either:
-        1. Run as its own standalone ROS 2 Node (for testing).
-        2. Attach to an existing PickAndPlace node instance.
-        """
+        """Run standalone (testing) or attach to an existing node instance."""
         self.own_node = False
         if node is None:
             if not rclpy.ok():
@@ -21,7 +17,8 @@ class PlanningSceneManager:
             self.node = rclpy.create_node(
                 'planning_scene_manager',
                 parameter_overrides=[
-                    rclpy.parameter.Parameter('use_sim_time', rclpy.Parameter.Type.BOOL, True)
+                    rclpy.parameter.Parameter(
+                        'use_sim_time', rclpy.Parameter.Type.BOOL, True)
                 ]
             )
             self.own_node = True
@@ -48,8 +45,10 @@ class PlanningSceneManager:
         header.frame_id = frame_id
         return header
 
-    def add_box_object(self, name: str, size: tuple, position: tuple, orientation=(0.0, 0.0, 0.0, 1.0), frame_id='world', color: ColorRGBA = None):
-        """Creates and publishes a box CollisionObject with optional custom color."""
+    def add_box_object(self, name: str, size: tuple, position: tuple,
+                       orientation=(0.0, 0.0, 0.0, 1.0), frame_id='world',
+                       color: ColorRGBA = None):
+        """Create and publish a box CollisionObject with optional color."""
         box = SolidPrimitive()
         box.type = SolidPrimitive.BOX
         box.dimensions = [float(size[0]), float(size[1]), float(size[2])]
@@ -83,11 +82,12 @@ class PlanningSceneManager:
             scene_diff.object_colors = [obj_color]
             self.planning_scene_pub.publish(scene_diff)
 
-        self.node.get_logger().info(f"Added collision object '{name}' at {position} in frame '{frame_id}'")
+        self.node.get_logger().info(
+            f"Added collision object '{name}' at {position} in frame '{frame_id}'")
         time.sleep(0.1)
 
     def remove_object(self, name: str):
-        """Removes a CollisionObject by ID."""
+        """Remove a CollisionObject by ID."""
         obj = CollisionObject()
         obj.header = self._create_header()
         obj.id = name
@@ -98,7 +98,8 @@ class PlanningSceneManager:
 
     def add_static_environment(self):
         """
-        Adds static environment objects matching large_warehouse floor layout:
+        Add static environment objects matching large_warehouse layout.
+
         - Ground Plane: size [4.0, 4.0, 0.02] at (0.0, 0.0, -0.01)
         - Docked AMR Chassis: size [0.35, 0.32, 0.18] at (-0.634, 0.300, 0.09)
         """
@@ -120,7 +121,7 @@ class PlanningSceneManager:
         )
 
     def add_target_box(self, position=(-0.484, -0.0893, 0.055), size=(0.1, 0.1, 0.1)):
-        """Adds pickable target box at the floor parcel location (Red)."""
+        """Add a pickable target box at the floor parcel location (red)."""
         box_color = ColorRGBA(r=1.0, g=0.3, b=0.3, a=0.95)
         self.add_box_object(
             name='target_box',
@@ -130,15 +131,16 @@ class PlanningSceneManager:
         )
 
     def init_full_scene(self):
-        """Initializes the complete planning scene with ground plane, docked AMR, and target box."""
+        """Initialize the planning scene with ground, AMR, and target box."""
         self.node.get_logger().info('Initializing complete MoveIt planning scene...')
         self.add_static_environment()
         self.add_target_box()
         self.node.get_logger().info('Planning scene successfully initialized.')
 
-    def attach_target_box_to_gripper(self, link_name='gripper_base_link', size=(0.1, 0.1, 0.1)):
-        """
-        Attaches 'target_box' to the robot gripper.
+    def attach_target_box_to_gripper(self, link_name='gripper_base_link',
+                                     size=(0.1, 0.1, 0.1)):
+        """Attach 'target_box' to the robot gripper.
+
         Sets touch_links to avoid false collision aborts with fingers.
         """
         attached_object = AttachedCollisionObject()
@@ -174,10 +176,10 @@ class PlanningSceneManager:
         self.node.get_logger().info(f"Attached 'target_box' to '{link_name}'")
         time.sleep(0.2)
 
-    def detach_target_box_from_gripper(self, drop_position=(-0.384, 0.300, 0.28), size=(0.1, 0.1, 0.1)):
-        """
-        Detaches 'target_box' from gripper and re-adds it at the drop-off pose in world frame.
-        """
+    def detach_target_box_from_gripper(self,
+                                       drop_position=(-0.384, 0.300, 0.28),
+                                       size=(0.1, 0.1, 0.1)):
+        """Detach 'target_box' and re-add it at the drop-off pose."""
         # 1. Detach from gripper
         detached_object = AttachedCollisionObject()
         detached_object.object.header = self._create_header(frame_id='world')
@@ -198,7 +200,7 @@ class PlanningSceneManager:
         self.node.get_logger().info(f"Re-added 'target_box' at drop position {drop_position}")
 
     def clear_all_objects(self):
-        """Clears all objects from the planning scene."""
+        """Clear all objects from the planning scene."""
         self.remove_object('ground_plane')
         self.remove_object('amr_chassis')
         self.remove_object('target_box')
@@ -206,14 +208,17 @@ class PlanningSceneManager:
         self.remove_object('obstacle')
         self.node.get_logger().info('Cleared all objects from planning scene.')
 
+
 def main(args=None):
     if not rclpy.ok():
         rclpy.init(args=args)
     manager = PlanningSceneManager()
     manager.init_full_scene()
-    
+
     try:
-        manager.node.get_logger().info('PlanningSceneManager is active with custom colors. Press Ctrl+C to stop.')
+        manager.node.get_logger().info(
+            'PlanningSceneManager is active with custom colors. '
+            'Press Ctrl+C to stop.')
         rclpy.spin(manager.node)
     except KeyboardInterrupt:
         pass
