@@ -216,3 +216,13 @@ The image is multi-stage: a cached rosdep dependency layer, a colcon build layer
 - **docker** — builds the dev image as a full compile check of all packages
 
 Local linting: `ruff check src/ && pylint --rcfile=.pylintrc src/nav_nodes/nav_nodes` (or install pre-commit: `pip install pre-commit && pre-commit install`).
+
+## Use of AI and Agnets
+
+- **Cline** - GLM-5.3-Flash for implementation of docker and github actions.
+- **Antigravity** - Claude sonnet 4.6, Gemini Flash 3.7, 3.8 and 3.1 Pro for codebase refinement.
+
+## LICENSE
+
+MIT © Palash Siddharth Mendhe
+
