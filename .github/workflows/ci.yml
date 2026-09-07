@@ -12,7 +12,7 @@ jobs:
     name: Lint (ruff + pylint)
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v5
         with:
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-24.04
     container: ros:jazzy-ros-base
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install build/test tooling
         run: |
@@ -70,7 +70,7 @@ jobs:
     name: Docker build (dev image)
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: docker/setup-buildx-action@v3
 
